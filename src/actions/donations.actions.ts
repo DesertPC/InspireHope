@@ -1,7 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { z } from "zod";
 
 const donationSchema = z.object({
@@ -27,6 +27,7 @@ export async function createDonationCheckout(data: z.infer<typeof donationSchema
     finalAmount = validated.amount + feeAmount;
   }
 
+  const stripe = getStripe();
   const session = await stripe.checkout.sessions.create({
     mode: validated.isRecurring ? "subscription" : "payment",
     payment_method_types: ["card", "us_bank_account"],
