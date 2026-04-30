@@ -1,10 +1,6 @@
 import { getDashboardStats } from "@/actions/dashboard.actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
-
 export default async function ReportsPage() {
   const stats = await getDashboardStats();
 

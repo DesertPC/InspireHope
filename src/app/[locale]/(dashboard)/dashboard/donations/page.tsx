@@ -10,10 +10,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
-
 export default async function DonationsPage() {
   const donations = await getDonations();
   const total = donations?.reduce((sum: number, d: any) => sum + (d.amount || 0), 0) ?? 0;

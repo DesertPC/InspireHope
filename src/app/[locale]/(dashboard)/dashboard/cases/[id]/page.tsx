@@ -6,10 +6,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, DollarSign, Clock, User, Calendar } from "lucide-react";
 
-export function generateStaticParams() {
-  return [];
-}
-
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
   const { id } = await params;
 

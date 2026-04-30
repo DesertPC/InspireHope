@@ -12,6 +12,7 @@ const links = [
   { href: "/en/dashboard/cases", label: "Cases" },
   { href: "/en/dashboard/donations", label: "Donations" },
   { href: "/en/dashboard/expenses", label: "Expenses" },
+  { href: "/en/dashboard/users", label: "Users" },
   { href: "/en/dashboard/reports", label: "Reports" },
   { href: "/en/dashboard/settings", label: "Settings" },
 ];

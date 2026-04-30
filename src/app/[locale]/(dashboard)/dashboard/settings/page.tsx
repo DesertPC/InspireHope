@@ -2,10 +2,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
-
 export default async function SettingsPage() {
   const supabase = await createSupabaseServerClient();
   const {

@@ -2,10 +2,6 @@ import { getDashboardStats } from "@/actions/dashboard.actions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, FolderOpen, Wallet } from "lucide-react";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
-
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
 
