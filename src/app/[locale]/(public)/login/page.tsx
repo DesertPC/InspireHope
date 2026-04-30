@@ -25,6 +25,8 @@ export default function LoginPage() {
       password,
     });
 
+    console.log("Login result:", { error: error?.message, hasSession: !!data.session });
+
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -38,6 +40,7 @@ export default function LoginPage() {
     }
 
     // Force full page reload to ensure cookies are sent on next request
+    console.log("Redirecting to dashboard...");
     window.location.href = "/en/dashboard";
   }
 
