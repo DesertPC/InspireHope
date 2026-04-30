@@ -1,5 +1,6 @@
 "use server";
 
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { z } from "zod";
 
@@ -56,3 +57,12 @@ export async function createDonationCheckout(data: z.infer<typeof donationSchema
 
   return { sessionId: session.id, url: session.url };
 }
+
+
+export async function getDonations() {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.from('donations').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
