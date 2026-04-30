@@ -1,0 +1,22 @@
+"use client";
+
+import { createBrowserClient } from "@supabase/ssr";
+import { useMemo } from "react";
+
+export function useSupabaseClient() {
+  const supabase = useMemo(() => {
+    return createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          storageKey: "sb-inspirehope-auth",
+          autoRefreshToken: true,
+          persistSession: true,
+        },
+      }
+    );
+  }, []);
+
+  return supabase;
+}

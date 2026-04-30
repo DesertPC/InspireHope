@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "title": "InspireHope Senior Center",
+    "description": "Supporting seniors in the Coachella Valley with compassion and dignity."
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "programs": "Programs",
+    "donate": "Donate",
+    "apply": "Apply",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "seniors": "Seniors",
+    "cases": "Cases",
+    "donations": "Donations",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "home": {
+    "hero": {
+      "title": "Inspiring Hope for Our Seniors",
+      "subtitle": "Providing essential services, resources, and compassionate care to seniors in the Coachella Valley.",
+      "ctaDonate": "Donate Now",
+      "ctaApply": "Apply for Services"
+    }
+  },
+  "auth": {
+    "loginTitle": "Sign in to your account",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "forgotPassword": "Forgot password?"
+  },
+  "donation": {
+    "title": "Make a Donation",
+    "amount": "Amount",
+    "donorName": "Full Name",
+    "donorEmail": "Email",
+    "donorPhone": "Phone (optional)",
+    "message": "Message (optional)",
+    "isAnonymous": "Make this donation anonymous",
+    "coverFees": "Cover transaction fees",
+    "recurring": "Make this a monthly donation",
+    "submit": "Donate with Stripe",
+    "success": "Thank you for your donation!"
+  }
+}

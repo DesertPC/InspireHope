@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "title": "InspireHope Senior Center",
+    "description": "Apoyando a los adultos mayores del Valle de Coachella con compasión y dignidad."
+  },
+  "navigation": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "programs": "Programas",
+    "donate": "Donar",
+    "apply": "Solicitar",
+    "contact": "Contacto",
+    "dashboard": "Panel",
+    "seniors": "Adultos Mayores",
+    "cases": "Casos",
+    "donations": "Donaciones",
+    "expenses": "Gastos",
+    "reports": "Reportes",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión",
+    "login": "Iniciar Sesión"
+  },
+  "home": {
+    "hero": {
+      "title": "Inspirando Esperanza para Nuestros Adultos Mayores",
+      "subtitle": "Brindando servicios esenciales, recursos y atención compasiva a los adultos mayores del Valle de Coachella.",
+      "ctaDonate": "Donar Ahora",
+      "ctaApply": "Solicitar Servicios"
+    }
+  },
+  "auth": {
+    "loginTitle": "Inicia sesión en tu cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signIn": "Iniciar Sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  },
+  "donation": {
+    "title": "Haz una Donación",
+    "amount": "Monto",
+    "donorName": "Nombre Completo",
+    "donorEmail": "Correo electrónico",
+    "donorPhone": "Teléfono (opcional)",
+    "message": "Mensaje (opcional)",
+    "isAnonymous": "Hacer esta donación anónima",
+    "coverFees": "Cubrir tarifas de transacción",
+    "recurring": "Hacer una donación mensual",
+    "submit": "Donar con Stripe",
+    "success": "¡Gracias por tu donación!"
+  }
+}
