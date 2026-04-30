@@ -1,71 +1,118 @@
-import { getSeniors } from "@/actions/seniors.actions";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
+
+import { useState, useEffect } from "react";
+import { getSeniors, deleteSenior } from "@/actions/seniors.actions";
+import { SeniorForm } from "./senior-form";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/ui/data-table";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
+export default function SeniorsPage() {
+  const router = useRouter();
+  const [seniors, setSeniors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingSenior, setEditingSenior] = useState<any>(null);
 
-export default async function SeniorsPage() {
-  const seniors = await getSeniors();
+  async function loadSeniors() {
+    setLoading(true);
+    try {
+      const data = await getSeniors();
+      setSeniors(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadSeniors();
+  }, []);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this senior?")) return;
+    try {
+      await deleteSenior(id);
+      await loadSeniors();
+    } catch (err) {
+      alert("Failed to delete senior");
+    }
+  }
+
+  function handleEdit(senior: any) {
+    setEditingSenior(senior);
+    setFormOpen(true);
+  }
+
+  function handleAdd() {
+    setEditingSenior(null);
+    setFormOpen(true);
+  }
+
+  const columns = [
+    { header: "Name", cell: (row: any) => `${row.first_name} ${row.last_name}` },
+    { header: "Email", accessorKey: "email" },
+    { header: "Phone", accessorKey: "phone" },
+    { header: "City", accessorKey: "city" },
+    {
+      header: "Status",
+      cell: (row: any) => (
+        <Badge variant={row.is_active ? "default" : "secondary"}>
+          {row.is_active ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+    {
+      header: "Actions",
+      cell: (row: any) => (
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(row)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => handleDelete(row.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Seniors</h1>
-        <p className="text-muted-foreground">Manage senior profiles and records</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Seniors</h1>
+          <p className="text-muted-foreground">Manage senior profiles and records</p>
+        </div>
+        <Button onClick={handleAdd}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Senior
+        </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Seniors ({seniors?.length ?? 0})</CardTitle>
+          <CardTitle>All Seniors ({seniors.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {seniors?.map((senior: any) => (
-                <TableRow key={senior.id}>
-                  <TableCell className="font-medium">
-                    {senior.first_name} {senior.last_name}
-                  </TableCell>
-                  <TableCell>{senior.email || "—"}</TableCell>
-                  <TableCell>{senior.phone || "—"}</TableCell>
-                  <TableCell>{senior.city || "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant={senior.is_active ? "default" : "secondary"}>
-                      {senior.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {(!seniors || seniors.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No seniors found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          {loading ? (
+            <p className="text-center text-muted-foreground py-8">Loading...</p>
+          ) : (
+            <DataTable columns={columns} data={seniors} keyExtractor={(row) => row.id} />
+          )}
         </CardContent>
       </Card>
+
+      <SeniorForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        senior={editingSenior}
+        onSuccess={loadSeniors}
+      />
     </div>
   );
 }

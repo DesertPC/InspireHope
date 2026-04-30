@@ -1,0 +1,63 @@
+"use client";
+
+import { ReactNode } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+
+interface Column<T> {
+  header: string;
+  accessorKey?: string;
+  cell?: (row: T) => ReactNode;
+  className?: string;
+}
+
+interface DataTableProps<T> {
+  columns: Column<T>[];
+  data: T[];
+  emptyMessage?: string;
+  keyExtractor: (row: T) => string;
+}
+
+export function DataTable<T>({ columns, data, emptyMessage = "No data found", keyExtractor }: DataTableProps<T>) {
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map((col, i) => (
+              <TableHead key={i} className={col.className}>
+                {col.header}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data?.length > 0 ? (
+            data.map((row) => (
+              <TableRow key={keyExtractor(row)}>
+                {columns.map((col, i) => (
+                  <TableCell key={i} className={col.className}>
+                    {col.cell ? col.cell(row) : col.accessorKey ? (row as any)[col.accessorKey] : null}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

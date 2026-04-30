@@ -1,22 +1,86 @@
-import { getExpenses } from "@/actions/expenses.actions";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
+
+import { useState, useEffect } from "react";
+import { getExpenses, deleteExpense } from "@/actions/expenses.actions";
+import { ExpenseForm } from "./expense-form";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/ui/data-table";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
-export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "es" }];
-}
+export default function ExpensesPage() {
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<any>(null);
 
-export default async function ExpensesPage() {
-  const expenses = await getExpenses();
-  const total = expenses?.reduce((sum: number, e: any) => sum + (e.amount || 0), 0) ?? 0;
+  async function loadExpenses() {
+    setLoading(true);
+    try {
+      const data = await getExpenses();
+      setExpenses(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this expense?")) return;
+    try {
+      await deleteExpense(id);
+      await loadExpenses();
+    } catch (err) {
+      alert("Failed to delete expense");
+    }
+  }
+
+  function handleEdit(e: any) {
+    setEditingExpense(e);
+    setFormOpen(true);
+  }
+
+  function handleAdd() {
+    setEditingExpense(null);
+    setFormOpen(true);
+  }
+
+  const total = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+  const columns = [
+    { header: "Description", accessorKey: "description" },
+    {
+      header: "Amount",
+      cell: (row: any) => <span className="text-red-600 font-medium">${row.amount?.toLocaleString()}</span>,
+    },
+    { header: "Category", cell: (row: any) => <Badge variant="outline">{row.category}</Badge> },
+    { header: "Payment", accessorKey: "payment_method" },
+    {
+      header: "Linked Case",
+      cell: (row: any) =>
+        row.cases ? `${row.cases.case_number}` : "—",
+    },
+    { header: "Date", accessorKey: "expense_date" },
+    {
+      header: "Actions",
+      cell: (row: any) => (
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(row)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => handleDelete(row.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -25,50 +89,32 @@ export default async function ExpensesPage() {
           <h1 className="text-3xl font-bold">Expenses</h1>
           <p className="text-muted-foreground">Manage organizational expenses</p>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-red-600">${total.toLocaleString()}</div>
-          <div className="text-sm text-muted-foreground">Total</div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-2xl font-bold text-red-600">${total.toLocaleString()}</div>
+            <div className="text-sm text-muted-foreground">Total</div>
+          </div>
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Expense
+          </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Expenses ({expenses?.length ?? 0})</CardTitle>
+          <CardTitle>All Expenses ({expenses.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {expenses?.map((e: any) => (
-                <TableRow key={e.id}>
-                  <TableCell className="font-medium">{e.description}</TableCell>
-                  <TableCell className="text-red-600 font-medium">${e.amount?.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{e.category}</Badge>
-                  </TableCell>
-                  <TableCell>{e.payment_method}</TableCell>
-                  <TableCell>{new Date(e.expense_date).toLocaleDateString()}</TableCell>
-                </TableRow>
-              ))}
-              {(!expenses || expenses.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No expenses found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          {loading ? (
+            <p className="text-center text-muted-foreground py-8">Loading...</p>
+          ) : (
+            <DataTable columns={columns} data={expenses} keyExtractor={(row) => row.id} />
+          )}
         </CardContent>
       </Card>
+
+      <ExpenseForm open={formOpen} onOpenChange={setFormOpen} expense={editingExpense} onSuccess={loadExpenses} />
     </div>
   );
 }
