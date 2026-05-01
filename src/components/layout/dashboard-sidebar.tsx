@@ -20,12 +20,13 @@ const links = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const locale = pathname?.split("/")[1] ?? "en";
 
   return (
     <aside className="w-64 border-r bg-background">
       <div className="flex h-full flex-col">
         <div className="flex h-14 items-center border-b px-4 justify-between">
-          <Link href="/en/dashboard" className="text-lg font-bold">
+          <Link href={`/${locale}`} className="text-lg font-bold">
             InspireHope
           </Link>
           <LocaleSwitcher />

@@ -9,20 +9,29 @@ export async function getUsers() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Check if current user is admin — use maybeSingle to avoid crashing
-  // if the user was created directly in Auth without a profiles row.
-  const { data: profile, error: profileError } = await supabase
+  // Check if current user has a profile row — if not, auto-create one
+  // so the first admin user (created directly in Auth) can still access the dashboard.
+  let { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profileError) {
-    console.error("getUsers profile error:", profileError);
-    throw new Error("Failed to verify admin status");
+  if (!profile) {
+    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
+      id: user.id,
+      email: user.email ?? "",
+      full_name: user.user_metadata?.full_name ?? null,
+      role: "admin",
+    });
+    if (insertError) {
+      console.error("Auto-create profile error:", insertError);
+      throw new Error("Failed to auto-create admin profile");
+    }
+    profile = { role: "admin" };
   }
 
-  if (profile?.role !== "admin") {
+  if (profile.role !== "admin") {
     throw new Error("Forbidden: admin access required");
   }
 
@@ -44,13 +53,27 @@ export async function createUser(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "admin") throw new Error("Forbidden");
+  if (!profile) {
+    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
+      id: user.id,
+      email: user.email ?? "",
+      full_name: user.user_metadata?.full_name ?? null,
+      role: "admin",
+    });
+    if (insertError) {
+      console.error("Auto-create profile error:", insertError);
+      throw new Error("Failed to auto-create admin profile");
+    }
+    profile = { role: "admin" };
+  }
+
+  if (profile.role !== "admin") throw new Error("Forbidden");
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

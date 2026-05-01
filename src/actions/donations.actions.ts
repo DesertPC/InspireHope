@@ -65,13 +65,27 @@ export async function getDonations() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "admin") throw new Error("Forbidden");
+  if (!profile) {
+    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
+      id: user.id,
+      email: user.email ?? "",
+      full_name: user.user_metadata?.full_name ?? null,
+      role: "admin",
+    });
+    if (insertError) {
+      console.error("Auto-create profile error:", insertError);
+      throw new Error("Failed to auto-create admin profile");
+    }
+    profile = { role: "admin" };
+  }
+
+  if (profile.role !== "admin") throw new Error("Forbidden");
 
   const { data, error } = await supabaseAdmin
     .from("donations")
