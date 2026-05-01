@@ -7,6 +7,7 @@
     "home": "Home",
     "about": "About",
     "programs": "Programs",
+    "testimonials": "Testimonials",
     "donate": "Donate",
     "apply": "Apply",
     "contact": "Contact",
@@ -79,6 +80,11 @@
         "Volunteer-driven with professional oversight"
       ]
     },
+    "testimonials": {
+      "title": "What People Are Saying",
+      "subtitle": "Real stories from seniors and families whose lives have been touched by InspireHope.",
+      "cta": "Share Your Story"
+    },
     "help": {
       "title": "How You Can Help",
       "subtitle": "Whether you give financially or need support yourself, there is a place for you at InspireHope.",
@@ -142,6 +148,7 @@
       "dashboard": "Dashboard",
       "seniors": "Seniors",
       "cases": "Cases",
+      "testimonials": "Testimonials",
       "donations": "Donations",
       "expenses": "Expenses",
       "users": "Users",

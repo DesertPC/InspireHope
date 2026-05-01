@@ -12,6 +12,7 @@ const routePaths = [
   { path: "/dashboard", key: "dashboard" },
   { path: "/dashboard/seniors", key: "seniors" },
   { path: "/dashboard/cases", key: "cases" },
+  { path: "/dashboard/testimonials", key: "testimonials" },
   { path: "/dashboard/donations", key: "donations" },
   { path: "/dashboard/expenses", key: "expenses" },
   { path: "/dashboard/users", key: "users" },

@@ -24,6 +24,7 @@ import {
   Folder,
 } from "lucide-react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { TestimonialsSection } from "@/components/testimonials-section";
 import { getTranslations } from "next-intl/server";
 
 export function generateStaticParams() {
@@ -274,6 +275,29 @@ export default async function HomePage({
                 </Button>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("home.testimonials.title")}</h2>
+            <p className="text-muted-foreground text-lg">
+              {t("home.testimonials.subtitle")}
+            </p>
+          </div>
+
+          <TestimonialsSection locale={locale} />
+
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" className="border-orange-300 hover:bg-orange-50">
+              <Link href={`/${locale}/testimonials`}>
+                {t("home.testimonials.cta")}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
