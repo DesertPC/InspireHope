@@ -47,13 +47,17 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     const redirectTo = `${window.location.origin}/api/auth/callback?locale=${locale}&role=${role}`;
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
     if (error) {
       setError(error.message);
       setLoading(false);
+      return;
+    }
+    if (data?.url) {
+      window.location.href = data.url;
     }
   }
 
