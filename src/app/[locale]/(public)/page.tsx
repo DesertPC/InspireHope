@@ -1,4 +1,5 @@
 import { getPublicStats } from "@/actions/dashboard.actions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Shield,
+  Folder,
 } from "lucide-react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { getTranslations } from "next-intl/server";
@@ -45,6 +47,15 @@ export default async function HomePage({
   const { locale } = await params;
   const stats = await getPublicStats();
   const t = await getTranslations();
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .maybeSingle();
+  const isApplicant = profile?.role === "applicant";
 
   const services = serviceDefs.map(({ key, icon }) => ({
     icon,
@@ -95,6 +106,14 @@ export default async function HomePage({
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Link>
               </Button>
+              {isApplicant && (
+                <Button asChild size="lg" className="bg-blue-500 hover:bg-blue-600 text-white h-14 px-8 text-lg">
+                  <Link href={`/${locale}/my-case`}>
+                    <Folder className="h-5 w-5 mr-2" />
+                    My Case
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

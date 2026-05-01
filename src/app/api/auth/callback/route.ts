@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const locale = searchParams.get("locale") ?? "en";
+  const role = searchParams.get("role") ?? "staff";
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -24,16 +25,26 @@ export async function GET(request: NextRequest) {
           .maybeSingle();
 
         if (!existing) {
-          const role = ADMIN_EMAILS.includes(user.email ?? "") ? "admin" : "volunteer";
+          let assignedRole = role;
+          if (ADMIN_EMAILS.includes(user.email ?? "")) {
+            assignedRole = "admin";
+          } else if (role === "applicant") {
+            assignedRole = "applicant";
+          } else {
+            assignedRole = "volunteer";
+          }
+
           await supabaseAdmin.from("profiles").insert({
             id: user.id,
             email: user.email ?? "",
             full_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
-            role,
+            role: assignedRole,
           });
         }
       }
-      return NextResponse.redirect(`${origin}/${locale}/dashboard`);
+
+      const redirectPath = role === "applicant" ? `/${locale}/my-case` : `/${locale}/dashboard`;
+      return NextResponse.redirect(`${origin}${redirectPath}`);
     }
   }
 
