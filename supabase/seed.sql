@@ -1,30 +1,13 @@
 -- ============================================================
 -- SEED DATA — InspireHope Senior Center
--- DATOS DE PRUEBA (NO ejecutar en producción)
+-- DATOS DE PRUEBA (ejecutar en Supabase SQL Editor)
 --
--- IMPORTANTE:
--- 1. Primero crea un usuario admin en Auth (Sign Up vía app o SQL Editor)
--- 2. Obtén el UUID del usuario auth.users.id
--- 3. Reemplaza '00000000-0000-0000-0000-000000000001' con ese UUID real
--- 4. Luego ejecuta este script
+-- NOTA: No insertamos en 'profiles' porque requiere que el usuario
+-- exista primero en auth.users (creado via Sign Up o OAuth).
 -- ============================================================
 
 -- ============================================================
--- 1. PERFIL ADMIN (requiere usuario existente en auth.users)
--- ============================================================
--- Perfil admin (vinculado al usuario creado en Auth)
-INSERT INTO profiles (id, email, full_name, role, phone, is_active)
-VALUES (
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf',
-    'admin@inspirehope.local',
-    'Admin User',
-    'admin',
-    '805-904-7882',
-    true
-);
-
--- ============================================================
--- 2. SENIORS (Beneficiarios)
+-- 1. SENIORS (Beneficiarios)
 -- ============================================================
 INSERT INTO seniors (
     id, first_name, last_name, date_of_birth, address, city, state, zip_code,
@@ -48,7 +31,7 @@ INSERT INTO seniors (
     'IEHP12345678',
     'stable',
     'low',
-    'Necesita transporte recurrente a citas médicas en Eisenhower Medical Center. Usa andador.',
+    'Needs recurring transportation to medical appointments at Eisenhower Medical Center. Uses a walker.',
     true
 ),
 (
@@ -67,7 +50,7 @@ INSERT INTO seniors (
     'IEHP87654321',
     'at_risk',
     'low',
-    'Vive solo, inglés limitado. Necesita ayuda con renovación de Medicaid y solicitud de SNAP.',
+    'Lives alone, limited English. Needs help with Medicaid renewal and SNAP application.',
     true
 ),
 (
@@ -86,12 +69,13 @@ INSERT INTO seniors (
     NULL,
     'stable',
     'moderate',
-    'Viuda, vive con su hija. Necesita chequeos de bienestar semanales y apoyo con grief counseling.',
+    'Widow, lives with daughter. Needs weekly wellness check-ins and grief counseling support.',
     true
 );
 
 -- ============================================================
--- 3. CASES (Casos de gestión)
+-- 2. CASES (Casos de gestión) — assigned_to dejado como NULL
+--    porque no hay perfiles de staff creados aún
 -- ============================================================
 INSERT INTO cases (
     id, senior_id, case_number, service_type, status, priority,
@@ -105,8 +89,8 @@ INSERT INTO cases (
     'transportation',
     'in_progress',
     'high',
-    'Transporte semanal a citas de oncología en Eisenhower Medical Center. Paciente requiere asistencia para subir/bajar del vehículo.',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf',
+    'Weekly transportation to oncology appointments at Eisenhower Medical Center. Patient requires assistance getting in/out of vehicle.',
+    NULL,
     500.00,
     20.00,
     '2026-04-01',
@@ -121,8 +105,8 @@ INSERT INTO cases (
     'benefits_navigation',
     'open',
     'urgent',
-    'Renovación de Medicaid (Medi-Cal) vence en 30 días. Paciente no ha recibido correos por cambio de dirección. También solicitar SNAP y housing voucher.',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf',
+    'Medicaid (Medi-Cal) renewal expires in 30 days. Patient has not received mail due to address change. Also applying for SNAP and housing voucher.',
+    NULL,
     0.00,
     15.00,
     '2026-04-10',
@@ -132,7 +116,7 @@ INSERT INTO cases (
 );
 
 -- ============================================================
--- 4. DONATIONS (Donaciones)
+-- 3. DONATIONS (Donaciones)
 -- ============================================================
 INSERT INTO donations (
     donor_name, donor_email, donor_phone, amount, currency,
@@ -176,14 +160,14 @@ INSERT INTO donations (
 );
 
 -- ============================================================
--- 5. EXPENSES (Gastos operativos)
+-- 4. EXPENSES (Gastos operativos)
 -- ============================================================
 INSERT INTO expenses (
     description, amount, category, payment_method, vendor_name,
     receipt_number, expense_date, case_id, notes, is_reimbursable
 ) VALUES
 (
-    'Gasolina - transporte Margaret Henderson (semana 1-15 Abr)',
+    'Gasoline - Margaret Henderson transport (week Apr 1-15)',
     145.50,
     'transportation',
     'credit_card',
@@ -191,11 +175,11 @@ INSERT INTO expenses (
     'RCP-2026-0415-001',
     '2026-04-15',
     '44444444-4444-4444-4444-444444444444',
-    'Recibo guardado en Dropbox. 6 viajes ida y vuelta a Eisenhower.',
+    'Receipt saved in Dropbox. 6 round trips to Eisenhower.',
     false
 ),
 (
-    'Comestibles emergencia - Roberto Martinez',
+    'Emergency groceries - Roberto Martinez',
     87.23,
     'food_program',
     'debit_card',
@@ -203,11 +187,11 @@ INSERT INTO expenses (
     'SB-2026-0412-8821',
     '2026-04-12',
     '55555555-5555-5555-5555-555555555555',
-    'Canasta básica de emergencia mientras se aprueba SNAP.',
+    'Emergency basic food basket while SNAP is being approved.',
     false
 ),
 (
-    'Papelera, carpetas, toners impresora',
+    'Office supplies - paper, folders, printer toner',
     124.99,
     'office_supplies',
     'credit_card',
@@ -215,60 +199,39 @@ INSERT INTO expenses (
     'OD-2026-0401-4452',
     '2026-04-01',
     NULL,
-    'Suministros oficina Q2.',
+    'Q2 office supplies.',
     false
 );
 
 -- ============================================================
--- 6. CASE NOTES
+-- 5. TESTIMONIALS (aprobados para que aparezcan en la web)
 -- ============================================================
-INSERT INTO case_notes (
-    case_id, note_type, content, contact_name, contact_phone,
-    follow_up_required, follow_up_date, created_by
-) VALUES
+INSERT INTO testimonials (name, email, content, status, rating) VALUES
 (
-    '44444444-4444-4444-4444-444444444444',
-    'phone_call',
-    'Llamada con Margaret. Confirma cita oncología 22 Abr a las 10:30am. Necesita recogida 9:45am. Su hija Susan no puede llevarla ese día.',
     'Margaret Henderson',
-    '760-555-0101',
-    true,
-    '2026-04-21',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf'
+    'm.henderson@email.local',
+    'InspireHope has been a blessing for me. I can no longer drive, and their volunteer drivers take me to all my medical appointments. The staff is kind, patient, and always on time. I do not know what I would do without them.',
+    'approved',
+    5
 ),
 (
-    '55555555-5555-5555-5555-555555555555',
-    'home_visit',
-    'Visita domiciliaria con Roberto. Explicamos formularios de renovación Medi-Cal en español. Documentos incompletos: falta prueba de residencia actual.',
     'Roberto Martinez',
-    '760-555-0201',
-    true,
-    '2026-04-18',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf'
-);
-
--- ============================================================
--- 7. CASE ACTIVITIES
--- ============================================================
-INSERT INTO case_activities (
-    case_id, volunteer_id, activity_type, hours_spent, miles_driven,
-    description, activity_date
-) VALUES
-(
-    '44444444-4444-4444-4444-444444444444',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf',
-    'transportation',
-    2.50,
-    24.00,
-    'Transporte ida y vuelta Eisenhower Medical Center. Espera en lobby durante cita.',
-    '2026-04-08'
+    'r.martinez@email.local',
+    'Como persona de habla hispana, a veces es difícil navegar el sistema de salud. El equipo de InspireHope me ayudó a renovar mi Medi-Cal y a solicitar SNAP. Hablan español y realmente se preocupan por los adultos mayores.',
+    'approved',
+    5
 ),
 (
-    '55555555-5555-5555-5555-555555555555',
-    'fb1583ac-cc93-4c08-b3b6-b4c6a1b448bf',
-    'benefits_assistance',
-    3.00,
-    0,
-    'Revisión de documentos Medi-Cal, traducción de formularios, llamada a IEHP member services.',
-    '2026-04-12'
+    'Susan Henderson',
+    'susan.h@email.local',
+    'My mother Margaret has been using InspireHope services for three months now. The transportation assistance has been life-changing for our family. We are so grateful this organization exists in the Coachella Valley.',
+    'approved',
+    4
+),
+(
+    'Elena Martinez',
+    'elena.m@email.local',
+    'InspireHope helped my father Roberto when he was at risk of losing his housing. They connected him with rental assistance and food programs. The case managers follow up regularly. Truly exceptional service.',
+    'approved',
+    5
 );
