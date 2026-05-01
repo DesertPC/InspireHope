@@ -62,7 +62,7 @@ const services = [
 const whyUs = [
   "501(c)(3) nonprofit — all donations are tax-deductible",
   "100% of donations go directly to senior programs",
-  "Local Coachella Valley organization since 2019",
+  "Local Coachella Valley organization since 2026",
   "Bilingual English/Spanish services",
   "Transparent financial reporting",
   "Volunteer-driven with professional oversight",
@@ -74,10 +74,10 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       {/* HERO */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.3),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,0.2),transparent_50%)]" />
+      <section className="relative text-white overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/images/hero-bg.jpg" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-slate-900/60" />
         </div>
         <div className="relative container mx-auto px-6 py-24 lg:py-32">
           <div className="max-w-3xl mx-auto text-center space-y-8">
@@ -179,12 +179,16 @@ export default async function HomePage() {
       </section>
 
       {/* ABOUT / MISSION */}
-      <section className="bg-slate-900 text-white py-20">
-        <div className="container mx-auto px-6">
+      <section className="relative text-white py-20 overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/images/mission-bg.jpg" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-slate-900/70" />
+        </div>
+        <div className="relative container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold">
-                Serving the Coachella Valley Since 2019
+                Serving the Coachella Valley Since 2026
               </h2>
               <p className="text-slate-300 text-lg leading-relaxed">
                 InspireHope Senior Center of Coachella Valley (ISCCV) is a 501(c)(3) nonprofit organization
@@ -227,8 +231,11 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-amber-50">
-              <CardContent className="pt-6 space-y-4">
+            <Card className="border-0 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0">
+                <img src="/images/donate-card-bg.jpg" alt="" className="w-full h-full object-cover opacity-40" />
+              </div>
+              <CardContent className="relative pt-6 space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
                   <Heart className="h-6 w-6 text-orange-600" />
                 </div>
@@ -245,8 +252,11 @@ export default async function HomePage() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-slate-50">
-              <CardContent className="pt-6 space-y-4">
+            <Card className="border-0 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0">
+                <img src="/images/apply-card-bg.jpg" alt="" className="w-full h-full object-cover opacity-40" />
+              </div>
+              <CardContent className="relative pt-6 space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
                   <HandHeart className="h-6 w-6 text-blue-600" />
                 </div>
@@ -301,7 +311,7 @@ export default async function HomePage() {
             <div>
               <h4 className="text-white font-semibold text-lg mb-2">InspireHope Senior Center</h4>
               <p className="text-sm">
-                Serving seniors in the Coachella Valley with compassion, dignity, and hope since 2019.
+                Serving seniors in the Coachella Valley with compassion, dignity, and hope since 2026.
               </p>
             </div>
             <div>
