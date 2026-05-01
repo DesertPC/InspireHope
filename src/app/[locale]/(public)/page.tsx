@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   Shield,
 } from "lucide-react";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "es" }];
@@ -80,6 +81,9 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-slate-900/60" />
         </div>
         <div className="relative container mx-auto px-6 py-24 lg:py-32">
+          <div className="absolute top-4 right-4">
+            <LocaleSwitcher />
+          </div>
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-sm px-4 py-1">
               501(c)(3) Nonprofit Organization

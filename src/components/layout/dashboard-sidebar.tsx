@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
 const links = [
   { href: "/en/dashboard", label: "Dashboard" },
@@ -23,10 +24,11 @@ export function DashboardSidebar() {
   return (
     <aside className="w-64 border-r bg-background">
       <div className="flex h-full flex-col">
-        <div className="flex h-14 items-center border-b px-4">
+        <div className="flex h-14 items-center border-b px-4 justify-between">
           <Link href="/en/dashboard" className="text-lg font-bold">
             InspireHope
           </Link>
+          <LocaleSwitcher />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
           {links.map((link) => (

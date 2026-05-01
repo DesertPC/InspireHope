@@ -9,20 +9,33 @@ export async function getUsers() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { data: profile } = await supabase
+  // Check if current user is admin — use maybeSingle to avoid crashing
+  // if the user was created directly in Auth without a profiles row.
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (profile?.role !== "admin") throw new Error("Forbidden");
+  if (profileError) {
+    console.error("getUsers profile error:", profileError);
+    throw new Error("Failed to verify admin status");
+  }
+
+  if (profile?.role !== "admin") {
+    throw new Error("Forbidden: admin access required");
+  }
 
   const { data, error } = await supabaseAdmin
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.error("getUsers supabaseAdmin error:", error);
+    throw new Error(error.message);
+  }
+
   return data ?? [];
 }
 
@@ -35,7 +48,7 @@ export async function createUser(formData: FormData) {
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (profile?.role !== "admin") throw new Error("Forbidden");
 
