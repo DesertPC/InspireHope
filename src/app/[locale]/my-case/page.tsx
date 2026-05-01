@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/supabase/auth-helpers";
 import {
   getMyCase,
   getMyCaseNotes,
@@ -13,22 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Clock, FileText, Calendar } from "lucide-react";
+import { Clock, FileText } from "lucide-react";
 
 export default async function MyCasePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/${locale}/login`);
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const { user, profile } = await requireAuth(locale);
 
   if (profile?.role !== "applicant") {
     redirect(`/${locale}/dashboard`);

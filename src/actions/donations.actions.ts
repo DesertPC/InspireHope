@@ -17,6 +17,39 @@ const donationSchema = z.object({
   coverFees: z.boolean().default(false),
 });
 
+async function getCurrentUser() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+  return session.user;
+}
+
+async function requireAdmin() {
+  const user = await getCurrentUser();
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
+      id: user.id,
+      email: user.email ?? "",
+      full_name: user.user_metadata?.full_name ?? null,
+      role: "admin",
+    });
+    if (insertError) {
+      console.error("Auto-create profile error:", insertError);
+      throw new Error("Failed to auto-create admin profile");
+    }
+    return { user, profile: { role: "admin" } };
+  }
+
+  if (profile.role !== "admin") throw new Error("Forbidden");
+  return { user, profile };
+}
+
 export async function createDonationCheckout(data: z.infer<typeof donationSchema>) {
   const validated = donationSchema.parse(data);
 
@@ -61,31 +94,7 @@ export async function createDonationCheckout(data: z.infer<typeof donationSchema
 }
 
 export async function getDonations() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-
-  let { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
-      id: user.id,
-      email: user.email ?? "",
-      full_name: user.user_metadata?.full_name ?? null,
-      role: "admin",
-    });
-    if (insertError) {
-      console.error("Auto-create profile error:", insertError);
-      throw new Error("Failed to auto-create admin profile");
-    }
-    profile = { role: "admin" };
-  }
-
-  if (profile.role !== "admin") throw new Error("Forbidden");
+  await requireAdmin();
 
   const { data, error } = await supabaseAdmin
     .from("donations")

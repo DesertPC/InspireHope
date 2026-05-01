@@ -29,7 +29,7 @@ export async function createExpense(formData: ExpenseFormData) {
   const validated = expenseSchema.parse(formData);
   const supabase = await createSupabaseServerClient();
 
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
   const { data, error } = await supabase
     .from("expenses")
@@ -44,7 +44,7 @@ export async function createExpense(formData: ExpenseFormData) {
       case_id: validated.caseId || null,
       notes: validated.notes,
       is_reimbursable: validated.isReimbursable,
-      approved_by: userData.user?.id,
+      approved_by: session?.user?.id,
     })
     .select()
     .single();

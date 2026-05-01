@@ -1,11 +1,27 @@
 "use server";
 
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const ADMIN_EMAILS = ["careisccv@gmail.com", "desertpcservices@gmail.com"];
 const FAKE_ADMIN_EMAIL = "admin@inspirehope.local";
 
 export async function bootstrapAdmins() {
+  // Verify current user is admin
+  const supabase = await createSupabaseServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const { data: currentProfile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (currentProfile?.role !== "admin") {
+    throw new Error("Forbidden: admin access required");
+  }
+
   const results: string[] = [];
 
   // 1. Delete fake admin user if it exists
@@ -26,12 +42,7 @@ export async function bootstrapAdmins() {
 
   // 2. Upsert admin profiles for the real admin emails
   for (const email of ADMIN_EMAILS) {
-    // Find user in auth.users by email via listUsers
-    const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
-      perPage: 1,
-      // @ts-ignore — filter by email via query if supported, otherwise we scan
-    });
-
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 100 });
     const authUser = listData?.users?.find((u) => u.email === email);
 
     if (!authUser) {

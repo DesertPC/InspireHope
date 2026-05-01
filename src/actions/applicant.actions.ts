@@ -1,14 +1,32 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-export async function getMyCase() {
+async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+  return session.user;
+}
 
-  const { data, error } = await supabase
+async function requireApplicant() {
+  const user = await getCurrentUser();
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "applicant") throw new Error("Forbidden");
+  return { user, profile };
+}
+
+export async function getMyCase() {
+  const { user } = await requireApplicant();
+
+  const { data, error } = await supabaseAdmin
     .from("cases")
     .select("*, seniors(*)")
     .eq("applicant_user_id", user.id)
@@ -21,11 +39,9 @@ export async function getMyCase() {
 }
 
 export async function getMyCaseNotes(caseId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  await requireApplicant();
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("case_notes")
     .select("*")
     .eq("case_id", caseId)
@@ -36,11 +52,9 @@ export async function getMyCaseNotes(caseId: string) {
 }
 
 export async function getMyCaseActivities(caseId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  await requireApplicant();
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("case_activities")
     .select("*")
     .eq("case_id", caseId)
@@ -51,11 +65,9 @@ export async function getMyCaseActivities(caseId: string) {
 }
 
 export async function getMyCaseDocuments(caseId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  await requireApplicant();
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("documents")
     .select("*")
     .eq("case_id", caseId)
@@ -67,16 +79,14 @@ export async function getMyCaseDocuments(caseId: string) {
 }
 
 export async function createCaseRequest(formData: FormData) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { user } = await requireApplicant();
 
   const caseId = formData.get("case_id") as string;
   const content = formData.get("content") as string;
 
   if (!caseId || !content) throw new Error("Case and content are required");
 
-  const { error } = await supabase.from("case_notes").insert({
+  const { error } = await supabaseAdmin.from("case_notes").insert({
     case_id: caseId,
     content,
     note_type: "request",

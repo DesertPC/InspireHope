@@ -4,12 +4,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-async function requireAdmin() {
+async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+  return session.user;
+}
 
-  let { data: profile } = await supabase
+async function requireAdmin() {
+  const user = await getCurrentUser();
+  const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
@@ -26,11 +30,11 @@ async function requireAdmin() {
       console.error("Auto-create profile error:", insertError);
       throw new Error("Failed to auto-create admin profile");
     }
-    profile = { role: "admin" };
+    return { user, profile: { role: "admin" } };
   }
 
   if (profile.role !== "admin") throw new Error("Forbidden");
-  return user;
+  return { user, profile };
 }
 
 export async function getDocuments() {
@@ -51,7 +55,7 @@ export async function getCaseDocuments(caseId: string) {
 }
 
 export async function uploadDocument(formData: FormData, caseId: string) {
-  const user = await requireAdmin();
+  const user = (await requireAdmin()).user;
 
   const file = formData.get("file") as File | null;
   const category = formData.get("category") as string;
@@ -75,7 +79,6 @@ export async function uploadDocument(formData: FormData, caseId: string) {
     throw new Error("Invalid document category");
   }
 
-  // Get senior_id from case
   const { data: caseData, error: caseError } = await supabaseAdmin
     .from("cases")
     .select("senior_id")
@@ -115,7 +118,6 @@ export async function uploadDocument(formData: FormData, caseId: string) {
   });
 
   if (insertError) {
-    // Attempt to clean up uploaded file
     await supabaseAdmin.storage.from("documents").remove([filePath]);
     console.error("Document insert error:", insertError);
     throw new Error(insertError.message);
@@ -143,7 +145,6 @@ export async function deleteDocument(documentId: string) {
 
   if (storageError) {
     console.error("Storage delete error:", storageError);
-    // Continue to try deleting the DB row even if storage delete fails
   }
 
   const { error: deleteError } = await supabaseAdmin
@@ -160,9 +161,7 @@ export async function deleteDocument(documentId: string) {
 }
 
 export async function getDocumentDownloadUrl(documentId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const user = await getCurrentUser();
 
   const { data: doc, error } = await supabaseAdmin
     .from("documents")
@@ -176,7 +175,7 @@ export async function getDocumentDownloadUrl(documentId: string) {
 
   const { data: urlData, error: urlError } = await supabaseAdmin.storage
     .from("documents")
-    .createSignedUrl(doc.file_path, 60 * 60); // 1 hour
+    .createSignedUrl(doc.file_path, 60 * 60);
 
   if (urlError) {
     console.error("Signed URL error:", urlError);

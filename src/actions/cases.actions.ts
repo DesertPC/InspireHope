@@ -98,7 +98,7 @@ export async function getCaseNotes(caseId: string) {
 
 export async function createCaseNote(caseId: string, content: string, noteType: string = "general") {
   const supabase = await createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
   const { data, error } = await supabase
     .from("case_notes")
@@ -106,7 +106,7 @@ export async function createCaseNote(caseId: string, content: string, noteType: 
       case_id: caseId,
       content,
       note_type: noteType,
-      created_by: userData.user?.id,
+      created_by: session?.user?.id,
     })
     .select()
     .single();
@@ -135,13 +135,13 @@ export async function createCaseActivity(
   milesDriven: number = 0
 ) {
   const supabase = await createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
   const { data, error } = await supabase
     .from("case_activities")
     .insert({
       case_id: caseId,
-      volunteer_id: userData.user?.id,
+      volunteer_id: session?.user?.id,
       activity_type: activityType,
       hours_spent: hoursSpent,
       miles_driven: milesDriven,

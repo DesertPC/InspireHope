@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 export default async function DashboardAuthLayout({
   children,
@@ -9,13 +9,16 @@ export default async function DashboardAuthLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { profile } = await requireAuth(locale);
 
-  if (!session) {
-    redirect(`/${locale}/login`);
+  // Applicants should not access the staff dashboard
+  if (profile?.role === "applicant") {
+    redirect(`/${locale}/my-case`);
+  }
+
+  // Only admins and volunteers can access the dashboard
+  if (!profile || (profile.role !== "admin" && profile.role !== "volunteer")) {
+    redirect(`/${locale}/login?error=unauthorized`);
   }
 
   return <>{children}</>;

@@ -22,7 +22,7 @@ export async function createSenior(formData: SeniorFormData) {
   const validated = seniorSchema.parse(formData);
   const supabase = await createSupabaseServerClient();
 
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
   const { data, error } = await supabase
     .from("seniors")
@@ -45,7 +45,7 @@ export async function createSenior(formData: SeniorFormData) {
       housing_status: validated.housingStatus,
       income_level: validated.incomeLevel,
       notes: validated.notes,
-      created_by: userData.user?.id,
+      created_by: session?.user?.id,
     })
     .select()
     .single();

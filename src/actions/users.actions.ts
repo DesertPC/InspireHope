@@ -4,14 +4,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-export async function getUsers() {
+async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+  return session.user;
+}
 
-  // Check if current user has a profile row — if not, auto-create one
-  // so the first admin user (created directly in Auth) can still access the dashboard.
-  let { data: profile } = await supabase
+async function requireAdmin() {
+  const user = await getCurrentUser();
+  const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
@@ -28,12 +30,15 @@ export async function getUsers() {
       console.error("Auto-create profile error:", insertError);
       throw new Error("Failed to auto-create admin profile");
     }
-    profile = { role: "admin" };
+    return { user, profile: { role: "admin" } };
   }
 
-  if (profile.role !== "admin") {
-    throw new Error("Forbidden: admin access required");
-  }
+  if (profile.role !== "admin") throw new Error("Forbidden: admin access required");
+  return { user, profile };
+}
+
+export async function getUsers() {
+  await requireAdmin();
 
   const { data, error } = await supabaseAdmin
     .from("profiles")
@@ -41,7 +46,7 @@ export async function getUsers() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("getUsers supabaseAdmin error:", error);
+    console.error("getUsers error:", error);
     throw new Error(error.message);
   }
 
@@ -49,31 +54,7 @@ export async function getUsers() {
 }
 
 export async function createUser(formData: FormData) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-
-  let { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
-      id: user.id,
-      email: user.email ?? "",
-      full_name: user.user_metadata?.full_name ?? null,
-      role: "admin",
-    });
-    if (insertError) {
-      console.error("Auto-create profile error:", insertError);
-      throw new Error("Failed to auto-create admin profile");
-    }
-    profile = { role: "admin" };
-  }
-
-  if (profile.role !== "admin") throw new Error("Forbidden");
+  await requireAdmin();
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
