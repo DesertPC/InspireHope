@@ -3,7 +3,8 @@
 -- DATOS DE PRUEBA (ejecutar en Supabase SQL Editor)
 --
 -- NOTA: No insertamos en 'profiles' porque requiere que el usuario
--- exista primero en auth.users (creado via Sign Up o OAuth).
+-- exista primero en auth.users (creado via Sign Up u OAuth).
+-- Usamos ON CONFLICT DO NOTHING para poder re-ejecutar sin errores.
 -- ============================================================
 
 -- ============================================================
@@ -71,11 +72,11 @@ INSERT INTO seniors (
     'moderate',
     'Widow, lives with daughter. Needs weekly wellness check-ins and grief counseling support.',
     true
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 2. CASES (Casos de gestión) — assigned_to dejado como NULL
---    porque no hay perfiles de staff creados aún
 -- ============================================================
 INSERT INTO cases (
     id, senior_id, case_number, service_type, status, priority,
@@ -113,7 +114,8 @@ INSERT INTO cases (
     '2026-05-10',
     NULL,
     true
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- 3. DONATIONS (Donaciones)
@@ -157,7 +159,8 @@ INSERT INTO donations (
     'pending', false, NULL, 'wellness',
     NULL,
     false, false, 0, 0
-);
+)
+ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- 4. EXPENSES (Gastos operativos)
@@ -201,7 +204,8 @@ INSERT INTO expenses (
     NULL,
     'Q2 office supplies.',
     false
-);
+)
+ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- 5. TESTIMONIALS (aprobados para que aparezcan en la web)
@@ -217,7 +221,7 @@ INSERT INTO testimonials (name, email, content, status, rating) VALUES
 (
     'Roberto Martinez',
     'r.martinez@email.local',
-    'Como persona de habla hispana, a veces es difícil navegar el sistema de salud. El equipo de InspireHope me ayudó a renovar mi Medi-Cal y a solicitar SNAP. Hablan español y realmente se preocupan por los adultos mayores.',
+    'As a Spanish speaker, it is sometimes difficult to navigate the healthcare system. The InspireHope team helped me renew my Medi-Cal and apply for SNAP. They speak Spanish and truly care about seniors.',
     'approved',
     5
 ),
@@ -234,4 +238,5 @@ INSERT INTO testimonials (name, email, content, status, rating) VALUES
     'InspireHope helped my father Roberto when he was at risk of losing his housing. They connected him with rental assistance and food programs. The case managers follow up regularly. Truly exceptional service.',
     'approved',
     5
-);
+)
+ON CONFLICT DO NOTHING;
