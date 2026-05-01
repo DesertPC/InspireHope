@@ -52,12 +52,17 @@ export default function LoginPage() {
       options: { redirectTo },
     });
     if (error) {
+      console.error("OAuth sign-in error:", error);
       setError(error.message);
       setLoading(false);
       return;
     }
     if (data?.url) {
       window.location.href = data.url;
+    } else {
+      console.error("OAuth sign-in returned no URL. Response data:", data);
+      setError("Unable to start Google sign-in. Please verify that Google OAuth is enabled in your Supabase project settings and that the redirect URL is authorized.");
+      setLoading(false);
     }
   }
 
