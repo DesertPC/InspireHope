@@ -102,7 +102,7 @@ export default async function HomePage() {
                   Donate Now
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg">
+              <Button asChild size="lg" variant="outline" className="bg-transparent border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg">
                 <Link href="/en/apply">
                   Request Assistance
                   <ArrowRight className="h-5 w-5 ml-2" />
