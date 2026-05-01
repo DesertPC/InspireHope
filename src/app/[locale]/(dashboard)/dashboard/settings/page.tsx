@@ -1,12 +1,22 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { bootstrapAdmins } from "@/actions/bootstrap.actions";
 
 export default async function SettingsPage() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .maybeSingle();
+
+  const isAdmin = profile?.role === "admin";
 
   return (
     <div className="space-y-6">
@@ -30,10 +40,28 @@ export default async function SettingsPage() {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Role</span>
-            <Badge>Admin</Badge>
+            <Badge>{profile?.role ?? "—"}</Badge>
           </div>
         </CardContent>
       </Card>
+
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Bootstrap</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Run this once to set up real admin accounts and remove the fake admin user.
+            </p>
+            <form action={bootstrapAdmins}>
+              <Button type="submit" variant="outline">
+                Run Admin Bootstrap
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
