@@ -22,10 +22,99 @@
   },
   "home": {
     "hero": {
-      "title": "Inspirando Esperanza para Nuestros Adultos Mayores",
-      "subtitle": "Brindando servicios esenciales, recursos y atención compasiva a los adultos mayores del Valle de Coachella.",
+      "badge": "Organización Sin Fines de Lucro 501(c)(3)",
+      "title": "Atención Compasiva para <highlight>Adultos Mayores</highlight> en el Valle de Coachella",
+      "subtitle": "InspireHope Senior Center proporciona servicios esenciales — transporte, apoyo con vivienda, programas de bienestar y gestión de casos — a adultos mayores vulnerables en Palm Desert y comunidades aledañas.",
       "ctaDonate": "Donar Ahora",
-      "ctaApply": "Solicitar Servicios"
+      "ctaApply": "Solicitar Ayuda"
+    },
+    "stats": {
+      "seniorsServed": "Adultos Mayores Atendidos",
+      "activeCases": "Casos Activos",
+      "donationsReceived": "Donaciones Recibidas",
+      "investedInPrograms": "Invertido en Programas"
+    },
+    "services": {
+      "title": "Nuestros Servicios",
+      "subtitle": "Apoyo integral diseñado para ayudar a los adultos mayores a vivir con dignidad, independencia y esperanza.",
+      "transportation": {
+        "title": "Transporte",
+        "description": "Citas médicas, compras de supermercado y recados esenciales para adultos mayores sin acceso a transporte confiable."
+      },
+      "housing": {
+        "title": "Asistencia de Vivienda",
+        "description": "Apoyo de renta de emergencia, prevención de desalojo y programas de estabilidad de vivienda para adultos mayores vulnerables."
+      },
+      "wellness": {
+        "title": "Programas de Bienestar",
+        "description": "Exámenes de salud, apoyo en la gestión de medicamentos y actividades de bienestar para mejorar la calidad de vida."
+      },
+      "caseManagement": {
+        "title": "Gestión de Casos",
+        "description": "Gestores de casos que brindan atención personalizada, coordinan servicios, facilitan el acceso a beneficios y ofrecen apoyo continuo."
+      },
+      "food": {
+        "title": "Asistencia Alimentaria",
+        "description": "Entrega de comidas, programas de nutrición y apoyo alimentario de emergencia para adultos mayores con inseguridad alimentaria."
+      },
+      "funeral": {
+        "title": "Apoyo Funerario",
+        "description": "Dignidad en los arreglos finales a través de coordinación funeraria y asistencia financiera para familias en duelo."
+      }
+    },
+    "mission": {
+      "title": "Sirviendo al Valle de Coachella Desde 2026",
+      "paragraph1": "InspireHope Senior Center of Coachella Valley (ISCCV) es una organización sin fines de lucro 501(c)(3) con sede en Palm Desert, California. Creemos que cada adulto mayor merece envejecer con dignidad, rodeado de apoyo comunitario y acceso a recursos esenciales.",
+      "paragraph2": "Nuestro equipo bilingüe (inglés/español) trabaja directamente con adultos mayores y sus familias para navegar sistemas complejos — desde el acceso a la atención médica y la inscripción en beneficios hasta la estabilidad de vivienda y el transporte.",
+      "einBadge": "EIN: 39-4484811",
+      "locationBadge": "Palm Desert, CA"
+    },
+    "whyUs": {
+      "items": [
+        "Organización sin fines de lucro 501(c)(3) — todas las donaciones son deducibles de impuestos",
+        "El 100% de las donaciones van directamente a los programas para adultos mayores",
+        "Organización local del Valle de Coachella desde 2026",
+        "Servicios bilingües en inglés/español",
+        "Reportes financieros transparentes",
+        "Impulsada por voluntarios con supervisión profesional"
+      ]
+    },
+    "help": {
+      "title": "Cómo Puedes Ayudar",
+      "subtitle": "Ya sea que des financieramente o necesites apoyo tú mismo, hay un lugar para ti en InspireHope.",
+      "donate": {
+        "title": "Haz una Donación",
+        "description": "Tu contribución financia directamente el transporte, apoyo con vivienda, programas de alimentos y gestión de casos para adultos mayores necesitados. Cada dólar marca la diferencia.",
+        "cta": "Donar Ahora"
+      },
+      "apply": {
+        "title": "Solicitar Ayuda",
+        "description": "Si usted o un ser querido es un adulto mayor en el Valle de Coachella que enfrenta inestabilidad de vivienda, barreras de transporte u otros desafíos, estamos aquí para ayudar.",
+        "cta": "Solicitar Servicios"
+      }
+    },
+    "contact": {
+      "title": "Contáctanos",
+      "subtitle": "¿Tienes preguntas sobre nuestros servicios, donaciones o cómo participar? Comunícate con nuestro equipo.",
+      "addressLine1": "73960 Highway 111 #4",
+      "addressLine2": "Palm Desert, CA 92260",
+      "phone": "805-904-7882",
+      "email": "careisccv@gmail.com"
+    },
+    "footer": {
+      "orgName": "InspireHope Senior Center",
+      "tagline": "Sirviendo a adultos mayores en el Valle de Coachella con compasión, dignidad y esperanza desde 2026.",
+      "quickLinks": "Enlaces Rápidos",
+      "donate": "Donar",
+      "apply": "Solicitar Servicios",
+      "about": "Sobre Nosotros",
+      "contact": "Contacto",
+      "legal": "Legal",
+      "nonprofit": "Organización Sin Fines de Lucro 501(c)(3)",
+      "ein": "EIN: 39-4484811",
+      "npi": "NPI: 1184584765",
+      "taxDeductible": "Todas las donaciones son deducibles de impuestos",
+      "copyright": "© {year} InspireHope Senior Center of Coachella Valley. Todos los derechos reservados."
     }
   },
   "auth": {
@@ -47,5 +136,18 @@
     "recurring": "Hacer una donación mensual",
     "submit": "Donar con Stripe",
     "success": "¡Gracias por tu donación!"
+  },
+  "dashboard": {
+    "sidebar": {
+      "dashboard": "Panel",
+      "seniors": "Adultos Mayores",
+      "cases": "Casos",
+      "donations": "Donaciones",
+      "expenses": "Gastos",
+      "users": "Usuarios",
+      "reports": "Reportes",
+      "settings": "Configuración",
+      "signOut": "Cerrar Sesión"
+    }
   }
 }

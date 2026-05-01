@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { getCase, getCaseNotes, getCaseActivities } from "@/actions/cases.actions";
+import { getCaseDocuments } from "@/actions/documents.actions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { CaseDocumentsSection } from "@/components/documents/case-documents-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, DollarSign, Clock, User, Calendar } from "lucide-react";
+import { ArrowLeft, DollarSign, Clock } from "lucide-react";
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
   const { id } = await params;
@@ -16,10 +19,20 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
     notFound();
   }
 
-  const [notes, activities] = await Promise.all([
+  const [notes, activities, documents] = await Promise.all([
     getCaseNotes(id),
     getCaseActivities(id),
+    getCaseDocuments(id),
   ]);
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .maybeSingle();
+  const isAdmin = profile?.role === "admin";
 
   const statusColor: any = {
     open: "bg-red-100 text-red-800",
@@ -163,6 +176,12 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           </CardContent>
         </Card>
       </div>
+
+      <CaseDocumentsSection
+        documents={documents}
+        caseId={id}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 }

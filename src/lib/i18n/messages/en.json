@@ -22,10 +22,99 @@
   },
   "home": {
     "hero": {
-      "title": "Inspiring Hope for Our Seniors",
-      "subtitle": "Providing essential services, resources, and compassionate care to seniors in the Coachella Valley.",
+      "badge": "501(c)(3) Nonprofit Organization",
+      "title": "Compassionate Care for <highlight>Seniors</highlight> in the Coachella Valley",
+      "subtitle": "InspireHope Senior Center provides essential services — transportation, housing support, wellness programs, and case management — to vulnerable seniors in Palm Desert and surrounding communities.",
       "ctaDonate": "Donate Now",
-      "ctaApply": "Apply for Services"
+      "ctaApply": "Request Assistance"
+    },
+    "stats": {
+      "seniorsServed": "Seniors Served",
+      "activeCases": "Active Cases",
+      "donationsReceived": "Donations Received",
+      "investedInPrograms": "Invested in Programs"
+    },
+    "services": {
+      "title": "Our Services",
+      "subtitle": "Comprehensive support designed to help seniors live with dignity, independence, and hope.",
+      "transportation": {
+        "title": "Transportation",
+        "description": "Medical appointments, grocery shopping, and essential errands for seniors without access to reliable transport."
+      },
+      "housing": {
+        "title": "Housing Assistance",
+        "description": "Emergency rent support, eviction prevention, and housing stability programs for vulnerable seniors."
+      },
+      "wellness": {
+        "title": "Wellness Programs",
+        "description": "Health screenings, medication management support, and wellness activities to improve quality of life."
+      },
+      "caseManagement": {
+        "title": "Case Management",
+        "description": "Personalized case managers who coordinate services, benefits navigation, and ongoing support."
+      },
+      "food": {
+        "title": "Food Assistance",
+        "description": "Meal delivery, nutrition programs, and emergency food support for food-insecure seniors."
+      },
+      "funeral": {
+        "title": "Funeral Support",
+        "description": "Dignity in final arrangements through funeral coordination and financial assistance for bereaved families."
+      }
+    },
+    "mission": {
+      "title": "Serving the Coachella Valley Since 2026",
+      "paragraph1": "InspireHope Senior Center of Coachella Valley (ISCCV) is a 501(c)(3) nonprofit organization based in Palm Desert, California. We believe every senior deserves to age with dignity, surrounded by community support and access to essential resources.",
+      "paragraph2": "Our bilingual team (English/Spanish) works directly with seniors and their families to navigate complex systems — from healthcare access and benefits enrollment to housing stability and transportation.",
+      "einBadge": "EIN: 39-4484811",
+      "locationBadge": "Palm Desert, CA"
+    },
+    "whyUs": {
+      "items": [
+        "501(c)(3) nonprofit — all donations are tax-deductible",
+        "100% of donations go directly to senior programs",
+        "Local Coachella Valley organization since 2026",
+        "Bilingual English/Spanish services",
+        "Transparent financial reporting",
+        "Volunteer-driven with professional oversight"
+      ]
+    },
+    "help": {
+      "title": "How You Can Help",
+      "subtitle": "Whether you give financially or need support yourself, there is a place for you at InspireHope.",
+      "donate": {
+        "title": "Make a Donation",
+        "description": "Your contribution directly funds transportation, housing support, food programs, and case management for seniors in need. Every dollar makes a difference.",
+        "cta": "Donate Now"
+      },
+      "apply": {
+        "title": "Request Assistance",
+        "description": "If you or a loved one is a senior in the Coachella Valley facing housing instability, transportation barriers, or other challenges, we are here to help.",
+        "cta": "Apply for Services"
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Have questions about our services, donations, or how to get involved? Reach out to our team.",
+      "addressLine1": "73960 Highway 111 #4",
+      "addressLine2": "Palm Desert, CA 92260",
+      "phone": "805-904-7882",
+      "email": "careisccv@gmail.com"
+    },
+    "footer": {
+      "orgName": "InspireHope Senior Center",
+      "tagline": "Serving seniors in the Coachella Valley with compassion, dignity, and hope since 2026.",
+      "quickLinks": "Quick Links",
+      "donate": "Donate",
+      "apply": "Apply for Services",
+      "about": "About Us",
+      "contact": "Contact",
+      "legal": "Legal",
+      "nonprofit": "501(c)(3) Nonprofit",
+      "ein": "EIN: 39-4484811",
+      "npi": "NPI: 1184584765",
+      "taxDeductible": "All donations are tax-deductible",
+      "copyright": "© {year} InspireHope Senior Center of Coachella Valley. All rights reserved."
     }
   },
   "auth": {
@@ -47,5 +136,18 @@
     "recurring": "Make this a monthly donation",
     "submit": "Donate with Stripe",
     "success": "Thank you for your donation!"
+  },
+  "dashboard": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "seniors": "Seniors",
+      "cases": "Cases",
+      "donations": "Donations",
+      "expenses": "Expenses",
+      "users": "Users",
+      "reports": "Reports",
+      "settings": "Settings",
+      "signOut": "Sign Out"
+    }
   }
 }

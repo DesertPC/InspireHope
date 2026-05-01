@@ -6,21 +6,23 @@ import { signOut } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { useTranslations } from "next-intl";
 
-const links = [
-  { href: "/en/dashboard", label: "Dashboard" },
-  { href: "/en/dashboard/seniors", label: "Seniors" },
-  { href: "/en/dashboard/cases", label: "Cases" },
-  { href: "/en/dashboard/donations", label: "Donations" },
-  { href: "/en/dashboard/expenses", label: "Expenses" },
-  { href: "/en/dashboard/users", label: "Users" },
-  { href: "/en/dashboard/reports", label: "Reports" },
-  { href: "/en/dashboard/settings", label: "Settings" },
+const routePaths = [
+  { path: "/dashboard", key: "dashboard" },
+  { path: "/dashboard/seniors", key: "seniors" },
+  { path: "/dashboard/cases", key: "cases" },
+  { path: "/dashboard/donations", key: "donations" },
+  { path: "/dashboard/expenses", key: "expenses" },
+  { path: "/dashboard/users", key: "users" },
+  { path: "/dashboard/reports", key: "reports" },
+  { path: "/dashboard/settings", key: "settings" },
 ];
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] ?? "en";
+  const t = useTranslations("dashboard");
 
   return (
     <aside className="w-64 border-r bg-background">
@@ -32,25 +34,28 @@ export function DashboardSidebar() {
           <LocaleSwitcher />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href as never}
-              className={cn(
-                "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                pathname === link.href
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground/60 hover:bg-accent hover:text-accent-foreground"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {routePaths.map((link) => {
+            const href = `/${locale}${link.path}`;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  pathname === href
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground/60 hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {t(`sidebar.${link.key}`)}
+              </Link>
+            );
+          })}
         </nav>
         <div className="border-t p-4">
           <form action={signOut}>
             <Button type="submit" variant="outline" className="w-full">
-              Sign Out
+              {t("sidebar.signOut")}
             </Button>
           </form>
         </div>

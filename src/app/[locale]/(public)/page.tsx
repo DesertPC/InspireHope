@@ -22,55 +22,37 @@ import {
   Shield,
 } from "lucide-react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { getTranslations } from "next-intl/server";
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "es" }];
 }
 
-const services = [
-  {
-    icon: Car,
-    title: "Transportation",
-    description: "Medical appointments, grocery shopping, and essential errands for seniors without access to reliable transport.",
-  },
-  {
-    icon: Home,
-    title: "Housing Assistance",
-    description: "Emergency rent support, eviction prevention, and housing stability programs for vulnerable seniors.",
-  },
-  {
-    icon: HeartPulse,
-    title: "Wellness Programs",
-    description: "Health screenings, medication management support, and wellness activities to improve quality of life.",
-  },
-  {
-    icon: HandHeart,
-    title: "Case Management",
-    description: "Personalized case managers who coordinate services, benefits navigation, and ongoing support.",
-  },
-  {
-    icon: Apple,
-    title: "Food Assistance",
-    description: "Meal delivery, nutrition programs, and emergency food support for food-insecure seniors.",
-  },
-  {
-    icon: Heart,
-    title: "Funeral Support",
-    description: "Dignity in final arrangements through funeral coordination and financial assistance for bereaved families.",
-  },
+const serviceDefs = [
+  { key: "transportation", icon: Car },
+  { key: "housing", icon: Home },
+  { key: "wellness", icon: HeartPulse },
+  { key: "caseManagement", icon: HandHeart },
+  { key: "food", icon: Apple },
+  { key: "funeral", icon: Heart },
 ];
 
-const whyUs = [
-  "501(c)(3) nonprofit — all donations are tax-deductible",
-  "100% of donations go directly to senior programs",
-  "Local Coachella Valley organization since 2026",
-  "Bilingual English/Spanish services",
-  "Transparent financial reporting",
-  "Volunteer-driven with professional oversight",
-];
-
-export default async function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const stats = await getPublicStats();
+  const t = await getTranslations();
+
+  const services = serviceDefs.map(({ key, icon }) => ({
+    icon,
+    title: t(`home.services.${key}.title`),
+    description: t(`home.services.${key}.description`),
+  }));
+
+  const whyUs = t.raw("home.whyUs.items") as string[];
 
   return (
     <div className="flex flex-col">
@@ -86,29 +68,30 @@ export default async function HomePage() {
           </div>
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-sm px-4 py-1">
-              501(c)(3) Nonprofit Organization
+              {t("home.hero.badge")}
             </Badge>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-              Compassionate Care for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-                Seniors
-              </span>{" "}
-              in the Coachella Valley
+              {t.rich("home.hero.title", {
+                highlight: (chunks) => (
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </h1>
             <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              InspireHope Senior Center provides essential services — transportation, housing support,
-              wellness programs, and case management — to vulnerable seniors in Palm Desert and surrounding communities.
+              {t("home.hero.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600 text-white h-14 px-8 text-lg">
-                <Link href="/en/donate">
+                <Link href={`/${locale}/donate`}>
                   <Heart className="h-5 w-5 mr-2" />
-                  Donate Now
+                  {t("home.hero.ctaDonate")}
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="bg-transparent border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg">
-                <Link href="/en/apply">
-                  Request Assistance
+                <Link href={`/${locale}/apply`}>
+                  {t("home.hero.ctaApply")}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Link>
               </Button>
@@ -125,14 +108,14 @@ export default async function HomePage() {
               <CardContent className="pt-6 text-center">
                 <Users className="h-8 w-8 text-blue-600 mx-auto mb-3" />
                 <div className="text-3xl font-bold text-slate-900">{stats.seniorsCount}</div>
-                <div className="text-sm text-muted-foreground">Seniors Served</div>
+                <div className="text-sm text-muted-foreground">{t("home.stats.seniorsServed")}</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
               <CardContent className="pt-6 text-center">
                 <FolderOpen className="h-8 w-8 text-blue-600 mx-auto mb-3" />
                 <div className="text-3xl font-bold text-slate-900">{stats.casesCount}</div>
-                <div className="text-sm text-muted-foreground">Active Cases</div>
+                <div className="text-sm text-muted-foreground">{t("home.stats.activeCases")}</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
@@ -141,7 +124,7 @@ export default async function HomePage() {
                 <div className="text-3xl font-bold text-slate-900">
                   ${Math.round(stats.totalDonations).toLocaleString()}
                 </div>
-                <div className="text-sm text-muted-foreground">Donations Received</div>
+                <div className="text-sm text-muted-foreground">{t("home.stats.donationsReceived")}</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">
@@ -150,7 +133,7 @@ export default async function HomePage() {
                 <div className="text-3xl font-bold text-slate-900">
                   ${Math.round(stats.totalExpenses).toLocaleString()}
                 </div>
-                <div className="text-sm text-muted-foreground">Invested in Programs</div>
+                <div className="text-sm text-muted-foreground">{t("home.stats.investedInPrograms")}</div>
               </CardContent>
             </Card>
           </div>
@@ -161,9 +144,9 @@ export default async function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Services</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("home.services.title")}</h2>
             <p className="text-muted-foreground text-lg">
-              Comprehensive support designed to help seniors live with dignity, independence, and hope.
+              {t("home.services.subtitle")}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,24 +175,21 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold">
-                Serving the Coachella Valley Since 2026
+                {t("home.mission.title")}
               </h2>
               <p className="text-slate-300 text-lg leading-relaxed">
-                InspireHope Senior Center of Coachella Valley (ISCCV) is a 501(c)(3) nonprofit organization
-                based in Palm Desert, California. We believe every senior deserves to age with dignity,
-                surrounded by community support and access to essential resources.
+                {t("home.mission.paragraph1")}
               </p>
               <p className="text-slate-300 text-lg leading-relaxed">
-                Our bilingual team (English/Spanish) works directly with seniors and their families to navigate
-                complex systems — from healthcare access and benefits enrollment to housing stability and transportation.
+                {t("home.mission.paragraph2")}
               </p>
               <div className="flex items-center gap-4 pt-2">
                 <Badge variant="outline" className="border-white/30 text-white">
                   <Shield className="h-3 w-3 mr-1" />
-                  EIN: 39-4484811
+                  {t("home.mission.einBadge")}
                 </Badge>
                 <Badge variant="outline" className="border-white/30 text-white">
-                  Palm Desert, CA
+                  {t("home.mission.locationBadge")}
                 </Badge>
               </div>
             </div>
@@ -229,9 +209,9 @@ export default async function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How You Can Help</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("home.help.title")}</h2>
             <p className="text-muted-foreground text-lg">
-              Whether you give financially or need support yourself, there is a place for you at InspireHope.
+              {t("home.help.subtitle")}
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -243,14 +223,13 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
                   <Heart className="h-6 w-6 text-orange-600" />
                 </div>
-                <h3 className="text-2xl font-bold">Make a Donation</h3>
+                <h3 className="text-2xl font-bold">{t("home.help.donate.title")}</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your contribution directly funds transportation, housing support, food programs,
-                  and case management for seniors in need. Every dollar makes a difference.
+                  {t("home.help.donate.description")}
                 </p>
                 <Button asChild className="bg-orange-500 hover:bg-orange-600">
-                  <Link href="/en/donate">
-                    Donate Now
+                  <Link href={`/${locale}/donate`}>
+                    {t("home.help.donate.cta")}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
@@ -264,14 +243,13 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
                   <HandHeart className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold">Request Assistance</h3>
+                <h3 className="text-2xl font-bold">{t("home.help.apply.title")}</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  If you or a loved one is a senior in the Coachella Valley facing housing instability,
-                  transportation barriers, or other challenges, we are here to help.
+                  {t("home.help.apply.description")}
                 </p>
                 <Button asChild variant="outline" className="border-blue-300 hover:bg-blue-50">
-                  <Link href="/en/apply">
-                    Apply for Services
+                  <Link href={`/${locale}/apply`}>
+                    {t("home.help.apply.cta")}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
@@ -285,23 +263,23 @@ export default async function HomePage() {
       <section className="bg-slate-50 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl font-bold">Contact Us</h2>
+            <h2 className="text-3xl font-bold">{t("home.contact.title")}</h2>
             <p className="text-muted-foreground">
-              Have questions about our services, donations, or how to get involved? Reach out to our team.
+              {t("home.contact.subtitle")}
             </p>
             <div className="grid sm:grid-cols-3 gap-6 pt-4">
               <div className="flex flex-col items-center gap-2">
                 <MapPin className="h-5 w-5 text-blue-600" />
-                <span className="text-sm text-muted-foreground">73960 Highway 111 #4</span>
-                <span className="text-sm text-muted-foreground">Palm Desert, CA 92260</span>
+                <span className="text-sm text-muted-foreground">{t("home.contact.addressLine1")}</span>
+                <span className="text-sm text-muted-foreground">{t("home.contact.addressLine2")}</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Phone className="h-5 w-5 text-blue-600" />
-                <span className="text-sm text-muted-foreground">805-904-7882</span>
+                <span className="text-sm text-muted-foreground">{t("home.contact.phone")}</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Mail className="h-5 w-5 text-blue-600" />
-                <span className="text-sm text-muted-foreground">careisccv@gmail.com</span>
+                <span className="text-sm text-muted-foreground">{t("home.contact.email")}</span>
               </div>
             </div>
           </div>
@@ -313,32 +291,32 @@ export default async function HomePage() {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h4 className="text-white font-semibold text-lg mb-2">InspireHope Senior Center</h4>
+              <h4 className="text-white font-semibold text-lg mb-2">{t("home.footer.orgName")}</h4>
               <p className="text-sm">
-                Serving seniors in the Coachella Valley with compassion, dignity, and hope since 2026.
+                {t("home.footer.tagline")}
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-2">Quick Links</h4>
+              <h4 className="text-white font-semibold mb-2">{t("home.footer.quickLinks")}</h4>
               <div className="flex flex-col gap-1 text-sm">
-                <Link href="/en/donate" className="hover:text-white transition-colors">Donate</Link>
-                <Link href="/en/apply" className="hover:text-white transition-colors">Apply for Services</Link>
-                <Link href="/en/about" className="hover:text-white transition-colors">About Us</Link>
-                <Link href="/en/contact" className="hover:text-white transition-colors">Contact</Link>
+                <Link href={`/${locale}/donate`} className="hover:text-white transition-colors">{t("home.footer.donate")}</Link>
+                <Link href={`/${locale}/apply`} className="hover:text-white transition-colors">{t("home.footer.apply")}</Link>
+                <Link href={`/${locale}/about`} className="hover:text-white transition-colors">{t("home.footer.about")}</Link>
+                <Link href={`/${locale}/contact`} className="hover:text-white transition-colors">{t("home.footer.contact")}</Link>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-2">Legal</h4>
+              <h4 className="text-white font-semibold mb-2">{t("home.footer.legal")}</h4>
               <div className="flex flex-col gap-1 text-sm">
-                <span>501(c)(3) Nonprofit</span>
-                <span>EIN: 39-4484811</span>
-                <span>NPI: 1184584765</span>
-                <span>All donations are tax-deductible</span>
+                <span>{t("home.footer.nonprofit")}</span>
+                <span>{t("home.footer.ein")}</span>
+                <span>{t("home.footer.npi")}</span>
+                <span>{t("home.footer.taxDeductible")}</span>
               </div>
             </div>
           </div>
           <div className="border-t border-slate-800 pt-6 text-sm text-center">
-            © {new Date().getFullYear()} InspireHope Senior Center of Coachella Valley. All rights reserved.
+            {t("home.footer.copyright", { year: new Date().getFullYear() })}
           </div>
         </div>
       </footer>
