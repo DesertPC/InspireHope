@@ -46,7 +46,13 @@ export default function LoginPage() {
   async function signInWithGoogle(role: "staff" | "applicant" = "staff") {
     setLoading(true);
     setError(null);
-    const redirectTo = `${window.location.origin}/api/auth/callback?locale=${locale}&role=${role}`;
+
+    // Store locale and role in cookies so the callback can read them
+    // without relying on query params (which can cause redirect URL mismatch)
+    document.cookie = `oauth_locale=${locale};path=/;max-age=3600`;
+    document.cookie = `oauth_role=${role};path=/;max-age=3600`;
+
+    const redirectTo = `${window.location.origin}/api/auth/callback`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },

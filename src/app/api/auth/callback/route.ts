@@ -8,8 +8,12 @@ const ADMIN_EMAILS = ["careisccv@gmail.com", "desertpcservices@gmail.com"];
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const locale = searchParams.get("locale") ?? "en";
-  const role = searchParams.get("role") ?? "staff";
+
+  // Read locale and role from cookies (set by login page before OAuth)
+  const cookieLocale = request.cookies.get("oauth_locale")?.value;
+  const cookieRole = request.cookies.get("oauth_role")?.value;
+  const locale = cookieLocale ?? "en";
+  const role = cookieRole ?? "staff";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/${locale}/login?error=auth_callback_failed&details=no_code`);
