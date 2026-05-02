@@ -3,17 +3,13 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const ADMIN_EMAILS = ["careisccv@gmail.com", "desertpcservices@gmail.com"];
-
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
 
-  // Read locale and role from cookies (set by login page before OAuth)
+  // Read locale from cookies (set by login page before OAuth)
   const cookieLocale = request.cookies.get("oauth_locale")?.value;
-  const cookieRole = request.cookies.get("oauth_role")?.value;
   const locale = cookieLocale ?? "en";
-  const role = cookieRole ?? "staff";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/${locale}/login?error=auth_callback_failed&details=no_code`);
@@ -29,36 +25,34 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Auto-provision profile after OAuth login
+  // Verify the user exists in profiles — reject unauthorized users
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
 
-  if (user) {
-    const { data: existing } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (!existing) {
-      let assignedRole = role;
-      if (ADMIN_EMAILS.includes(user.email ?? "")) {
-        assignedRole = "admin";
-      } else if (role === "applicant") {
-        assignedRole = "applicant";
-      } else {
-        assignedRole = "volunteer";
-      }
-
-      await supabaseAdmin.from("profiles").insert({
-        id: user.id,
-        email: user.email ?? "",
-        full_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
-        role: assignedRole,
-      });
-    }
+  if (!user?.email) {
+    return NextResponse.redirect(`${origin}/${locale}/login?error=auth_callback_failed&details=no_user`);
   }
 
-  const redirectPath = role === "applicant" ? `/${locale}/my-case` : `/${locale}/dashboard`;
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("email", user.email)
+    .maybeSingle();
+
+  if (!profile) {
+    // User authenticated with Google but is NOT pre-authorized in profiles
+    // Sign them out immediately and redirect to login with error
+    await supabase.auth.signOut();
+    return NextResponse.redirect(
+      `${origin}/${locale}/login?error=not_authorized`
+    );
+  }
+
+  // Redirect based on the role stored in profiles (not the button clicked)
+  const redirectPath =
+    profile.role === "applicant"
+      ? `/${locale}/my-case`
+      : `/${locale}/dashboard`;
+
   return NextResponse.redirect(`${origin}${redirectPath}`);
 }

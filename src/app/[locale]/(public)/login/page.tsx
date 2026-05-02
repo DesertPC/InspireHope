@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,18 @@ export default function LoginPage() {
   const supabase = useSupabaseClient();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] ?? "en";
+
+  // Read error from URL query params (set by OAuth callback on failure)
+  useEffect(() => {
+    const urlError = new URLSearchParams(window.location.search).get("error");
+    if (urlError === "not_authorized") {
+      setError("You are not authorized to access this system. Please contact an administrator to request access.");
+    } else if (urlError === "unauthorized") {
+      setError("Access denied. You do not have permission to view this page.");
+    } else if (urlError) {
+      setError(`Authentication error: ${urlError}`);
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
