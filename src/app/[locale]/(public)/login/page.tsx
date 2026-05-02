@@ -47,6 +47,13 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    // If there's an existing session, sign out first to avoid
+    // Supabase trying to link the OAuth provider to the existing user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await supabase.auth.signOut();
+    }
+
     // Store locale and role in cookies so the callback can read them
     // without relying on query params (which can cause redirect URL mismatch)
     document.cookie = `oauth_locale=${locale};path=/;max-age=3600`;
