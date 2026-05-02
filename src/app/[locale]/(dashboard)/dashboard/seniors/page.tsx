@@ -8,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 export default function SeniorsPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] ?? "en";
   const t = useTranslations("dashboard.pages.seniors");
   const [seniors, setSeniors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function SeniorsPage() {
   }
 
   function handleView(senior: any) {
-    router.push(`/en/dashboard/seniors/${senior.id}`);
+    router.push(`/${locale}/dashboard/seniors/${senior.id}`);
   }
 
   function handleEdit(senior: any) {
@@ -108,7 +110,7 @@ export default function SeniorsPage() {
           {loading ? (
             <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
-            <DataTable columns={columns} data={seniors} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/en/dashboard/seniors/${row.id}`)} />
+            <DataTable columns={columns} data={seniors} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/${locale}/dashboard/seniors/${row.id}`)} />
           )}
         </CardContent>
       </Card>

@@ -14,6 +14,9 @@ export async function signOut() {
 }
 
 export async function updateUserLocale(locale: string) {
+  const validLocales = ["en", "es"];
+  if (!validLocales.includes(locale)) throw new Error("Invalid locale");
+
   const supabase = await createSupabaseServerClient();
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;
@@ -25,6 +28,25 @@ export async function updateUserLocale(locale: string) {
 
   if (error) {
     console.error("updateUserLocale error:", error);
+    throw new Error(error.message);
+  }
+}
+
+export async function updateProfile(formData: FormData) {
+  const supabase = await createSupabaseServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const fullName = formData.get("full_name") as string;
+  const phone = formData.get("phone") as string;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ full_name: fullName || null, phone: phone || null })
+    .eq("id", session.user.id);
+
+  if (error) {
+    console.error("updateProfile error:", error);
     throw new Error(error.message);
   }
 }

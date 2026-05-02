@@ -1,8 +1,10 @@
 import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { updateProfile } from "@/actions/auth.actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { bootstrapAdmins } from "@/actions/bootstrap.actions";
+import { Badge } from "@/components/ui/badge";
 
 export default async function SettingsPage({
   params,
@@ -11,7 +13,6 @@ export default async function SettingsPage({
 }) {
   const { locale } = await params;
   const { user, profile } = await requireAuth(locale);
-
   const isAdmin = profile?.role === "admin";
 
   return (
@@ -41,20 +42,36 @@ export default async function SettingsPage({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={updateProfile} className="grid gap-4 md:grid-cols-2 items-end">
+            <div className="space-y-2">
+              <Label htmlFor="full_name">Full Name</Label>
+              <Input id="full_name" name="full_name" defaultValue={profile?.full_name ?? ""} placeholder="Your name" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" name="phone" defaultValue={profile?.phone ?? ""} placeholder="Your phone number" />
+            </div>
+            <div className="md:col-span-2">
+              <Button type="submit">Save Changes</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
       {isAdmin && (
         <Card>
           <CardHeader>
-            <CardTitle>Admin Bootstrap</CardTitle>
+            <CardTitle>Admin Tools</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Run this once to set up real admin accounts and remove the fake admin user.
+              Manage users, donations, and system settings from the dashboard sidebar.
             </p>
-            <form action={bootstrapAdmins}>
-              <Button type="submit" variant="outline">
-                Run Admin Bootstrap
-              </Button>
-            </form>
           </CardContent>
         </Card>
       )}

@@ -35,13 +35,13 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
       return;
     }
@@ -52,7 +52,22 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = `/${locale}/dashboard`;
+    // Verify user exists in profiles table (same check as OAuth callback)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("email", data.session.user.email ?? "")
+      .maybeSingle();
+
+    if (!profile) {
+      await supabase.auth.signOut();
+      setError("You are not authorized to access this system. Please contact an administrator to request access.");
+      setLoading(false);
+      return;
+    }
+
+    const redirectPath = profile.role === "applicant" ? `/${locale}/my-case` : `/${locale}/dashboard`;
+    window.location.href = redirectPath;
   }
 
   async function signInWithGoogle(role: "staff" | "applicant" = "staff") {
@@ -68,8 +83,8 @@ export default function LoginPage() {
 
     // Store locale and role in cookies so the callback can read them
     // without relying on query params (which can cause redirect URL mismatch)
-    document.cookie = `oauth_locale=${locale};path=/;max-age=3600`;
-    document.cookie = `oauth_role=${role};path=/;max-age=3600`;
+    document.cookie = `oauth_locale=${locale};path=/;max-age=3600;SameSite=Lax`;
+    document.cookie = `oauth_role=${role};path=/;max-age=3600;SameSite=Lax`;
 
     const redirectTo = `${window.location.origin}/api/auth/callback`;
     const { data, error } = await supabase.auth.signInWithOAuth({

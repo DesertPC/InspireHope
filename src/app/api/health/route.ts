@@ -6,7 +6,7 @@ export async function GET() {
   const supabase = await createSupabaseServerClient();
 
   // Test 1: Can we reach Supabase Auth?
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  const { error: sessionError } = await supabase.auth.getSession();
 
   // Test 2: Count rows via admin client (bypasses RLS)
   const adminCounts: Record<string, number | null> = {};
@@ -26,22 +26,18 @@ export async function GET() {
     .eq("status", "approved")
     .limit(5);
 
+  const allOk = !sessionError && !publicError;
+
   return NextResponse.json({
-    ok: !sessionError,
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "configured" : "missing",
-    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "configured" : "missing",
-    serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? "configured" : "missing",
+    ok: allOk,
     auth: {
       ok: !sessionError,
       error: sessionError?.message ?? null,
-      hasSession: !!session,
-      userId: session?.user?.id ?? null,
     },
     adminCounts,
     publicTestimonials: {
       count: publicTestimonials?.length ?? 0,
       error: publicError?.message ?? null,
-      sample: publicTestimonials ?? [],
     },
   });
 }

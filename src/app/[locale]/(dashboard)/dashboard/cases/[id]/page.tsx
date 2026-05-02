@@ -10,7 +10,7 @@ import Link from "next/link";
 import { ArrowLeft, DollarSign, Clock } from "lucide-react";
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   let caseData;
   try {
@@ -56,7 +56,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
-          <Link href="/en/dashboard/cases">
+          <Link href={`/${locale}/dashboard/cases`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

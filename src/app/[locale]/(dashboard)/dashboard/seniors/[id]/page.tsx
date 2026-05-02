@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default async function SeniorDetailPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   let senior;
   try {
@@ -20,7 +20,7 @@ export default async function SeniorDetailPage({ params }: { params: Promise<{ i
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
-          <Link href="/en/dashboard/seniors">
+          <Link href={`/${locale}/dashboard/seniors`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

@@ -8,8 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, HandHeart, Home, Car, Apple, HeartPulse, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Heart, HandHeart, Home, Car, Apple, HeartPulse, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createDonationCheckout } from "@/actions/donations.actions";
 
 const presetAmounts = [25, 50, 100, 250, 500, 1000];
 
@@ -28,7 +29,8 @@ export default function DonatePage() {
   const [donationType, setDonationType] = useState("general");
   const [isRecurring, setIsRecurring] = useState(false);
   const [coverFees, setCoverFees] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const finalAmount =
     amount === "custom" ? Number(customAmount) || 0 : amount;
@@ -36,37 +38,42 @@ export default function DonatePage() {
   const feeAmount = coverFees ? Math.round((finalAmount * 0.022 + 0.30) * 100) / 100 : 0;
   const totalAmount = finalAmount + feeAmount;
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
-  }
+    setLoading(true);
+    setError(null);
 
-  if (submitted) {
-    return (
-      <div className="container mx-auto px-6 py-24 max-w-lg">
-        <Card>
-          <CardContent className="pt-6 text-center space-y-4">
-            <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto" />
-            <h2 className="text-2xl font-bold">Thank You!</h2>
-            <p className="text-muted-foreground">
-              Your donation of <strong>${totalAmount.toFixed(2)}</strong> to support{" "}
-              <strong>{donationTypes.find((d) => d.value === donationType)?.label}</strong> has been
-              recorded.
-            </p>
-            <Alert className="bg-amber-50 border-amber-200">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-800 text-sm">
-                Online payment processing via Stripe will be enabled in the final version.
-                For now, please contact us at <strong>care@isccv.com</strong> to complete your donation.
-              </AlertDescription>
-            </Alert>
-            <Button variant="outline" onClick={() => setSubmitted(false)}>
-              Make Another Donation
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    const formData = new FormData(e.currentTarget);
+    const donorName = formData.get("donorName") as string;
+    const donorEmail = formData.get("donorEmail") as string;
+    const donorPhone = formData.get("donorPhone") as string;
+    const message = formData.get("message") as string;
+    const isAnonymous = formData.get("anonymous") === "on";
+
+    try {
+      const result = await createDonationCheckout({
+        amount: finalAmount,
+        donationType: donationType as any,
+        isRecurring,
+        donorName,
+        donorEmail,
+        donorPhone,
+        message,
+        isAnonymous,
+        coverFees,
+      });
+
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        setError("Unable to start checkout. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Donation checkout error:", err);
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -80,6 +87,13 @@ export default function DonatePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Amount Selection */}
         <div className="space-y-3">
           <Label className="text-lg font-semibold">Select Amount</Label>
@@ -91,6 +105,7 @@ export default function DonatePage() {
                 variant={amount === preset ? "default" : "outline"}
                 onClick={() => setAmount(preset)}
                 className="h-14 text-lg"
+                disabled={loading}
               >
                 ${preset}
               </Button>
@@ -102,6 +117,7 @@ export default function DonatePage() {
               variant={amount === "custom" ? "default" : "outline"}
               onClick={() => setAmount("custom")}
               className="h-14 px-6"
+              disabled={loading}
             >
               Custom
             </Button>
@@ -116,6 +132,7 @@ export default function DonatePage() {
                   onChange={(e) => setCustomAmount(e.target.value)}
                   className="h-14 pl-7 text-lg"
                   required
+                  disabled={loading}
                 />
               </div>
             )}
@@ -125,7 +142,7 @@ export default function DonatePage() {
         {/* Donation Type */}
         <div className="space-y-3">
           <Label className="text-lg font-semibold">Designation</Label>
-          <RadioGroup value={donationType} onValueChange={setDonationType} className="grid grid-cols-2 gap-3">
+          <RadioGroup value={donationType} onValueChange={setDonationType} className="grid grid-cols-2 gap-3" disabled={loading}>
             {donationTypes.map((type) => (
               <div key={type.value}>
                 <RadioGroupItem value={type.value} id={type.value} className="peer sr-only" />
@@ -151,6 +168,7 @@ export default function DonatePage() {
               id="recurring"
               checked={isRecurring}
               onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
+              disabled={loading}
             />
             <Label htmlFor="recurring">Make this a monthly recurring donation</Label>
           </div>
@@ -159,6 +177,7 @@ export default function DonatePage() {
               id="coverFees"
               checked={coverFees}
               onCheckedChange={(checked) => setCoverFees(checked as boolean)}
+              disabled={loading}
             />
             <Label htmlFor="coverFees">
               Cover processing fees (${feeAmount.toFixed(2)}) — 100% of your donation goes to our programs
@@ -195,34 +214,34 @@ export default function DonatePage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="donorName">Full Name *</Label>
-              <Input id="donorName" name="donorName" required />
+              <Input id="donorName" name="donorName" required disabled={loading} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="donorEmail">Email *</Label>
-              <Input id="donorEmail" name="donorEmail" type="email" required />
+              <Input id="donorEmail" name="donorEmail" type="email" required disabled={loading} />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="donorPhone">Phone</Label>
-            <Input id="donorPhone" name="donorPhone" />
+            <Input id="donorPhone" name="donorPhone" disabled={loading} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="message">Message (optional)</Label>
-            <Textarea id="message" name="message" placeholder="Dedication, memory, or words of encouragement..." />
+            <Textarea id="message" name="message" placeholder="Dedication, memory, or words of encouragement..." disabled={loading} />
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox id="anonymous" name="anonymous" />
+            <Checkbox id="anonymous" name="anonymous" disabled={loading} />
             <Label htmlFor="anonymous">Make this donation anonymous</Label>
           </div>
         </div>
 
-        <Button type="submit" className="w-full h-14 text-lg" disabled={finalAmount <= 0}>
+        <Button type="submit" className="w-full h-14 text-lg" disabled={finalAmount <= 0 || loading}>
           <Heart className="h-5 w-5 mr-2" />
-          Donate ${totalAmount.toFixed(2)}
+          {loading ? "Processing..." : `Donate $${totalAmount.toFixed(2)}`}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Secure donation. Tax receipt will be emailed. EIN: 85-1234567
+          Secure donation via Stripe. Tax receipt will be emailed. EIN: 39-4484811
         </p>
       </form>
     </div>

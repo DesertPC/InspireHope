@@ -19,21 +19,10 @@ async function requireAdmin() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
-      id: user.id,
-      email: user.email ?? "",
-      full_name: user.user_metadata?.full_name ?? null,
-      role: "admin",
-    });
-    if (insertError) {
-      console.error("Auto-create profile error:", insertError);
-      throw new Error("Failed to auto-create admin profile");
-    }
-    return { user, profile: { role: "admin" } };
+  if (!profile || profile.role !== "admin") {
+    throw new Error("Forbidden: admin access required");
   }
 
-  if (profile.role !== "admin") throw new Error("Forbidden: admin access required");
   return { user, profile };
 }
 

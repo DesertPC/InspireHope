@@ -9,11 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 export default function CasesPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] ?? "en";
   const t = useTranslations("dashboard.pages.cases");
   const [cases, setCases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +99,7 @@ export default function CasesPage() {
       cell: (row: any) => (
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" asChild>
-            <Link href={`/en/dashboard/cases/${row.id}`}>
+            <Link href={`/${locale}/dashboard/cases/${row.id}`}>
               <Eye className="h-4 w-4" />
             </Link>
           </Button>
@@ -133,7 +135,7 @@ export default function CasesPage() {
           {loading ? (
             <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
-            <DataTable columns={columns} data={cases} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/en/dashboard/cases/${row.id}`)} />
+            <DataTable columns={columns} data={cases} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/${locale}/dashboard/cases/${row.id}`)} />
           )}
         </CardContent>
       </Card>

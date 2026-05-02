@@ -17,37 +17,22 @@ const donationSchema = z.object({
   coverFees: z.boolean().default(false),
 });
 
-async function getCurrentUser() {
+async function requireAdmin() {
   const supabase = await createSupabaseServerClient();
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) throw new Error("Unauthorized");
-  return session.user;
-}
 
-async function requireAdmin() {
-  const user = await getCurrentUser();
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("role")
-    .eq("id", user.id)
+    .eq("id", session.user.id)
     .maybeSingle();
 
-  if (!profile) {
-    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
-      id: user.id,
-      email: user.email ?? "",
-      full_name: user.user_metadata?.full_name ?? null,
-      role: "admin",
-    });
-    if (insertError) {
-      console.error("Auto-create profile error:", insertError);
-      throw new Error("Failed to auto-create admin profile");
-    }
-    return { user, profile: { role: "admin" } };
+  if (!profile || profile.role !== "admin") {
+    throw new Error("Forbidden: admin access required");
   }
 
-  if (profile.role !== "admin") throw new Error("Forbidden");
-  return { user, profile };
+  return { user: session.user, profile };
 }
 
 export async function createDonationCheckout(data: z.infer<typeof donationSchema>) {
@@ -89,6 +74,29 @@ export async function createDonationCheckout(data: z.infer<typeof donationSchema
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/donate/cancel`,
     customer_email: validated.donorEmail,
   });
+
+  // Insert pending donation record so webhook can update it
+  const { error: insertError } = await supabaseAdmin.from("donations").insert({
+    donor_name: validated.isAnonymous ? "Anonymous" : validated.donorName,
+    donor_email: validated.donorEmail,
+    donor_phone: validated.donorPhone || null,
+    amount: finalAmount,
+    currency: "USD",
+    payment_status: "pending",
+    is_recurring: validated.isRecurring,
+    donation_type: validated.donationType,
+    message: validated.message || null,
+    is_anonymous: validated.isAnonymous,
+    fee_covered_by_donor: validated.coverFees,
+    fee_amount: feeAmount,
+    net_amount: validated.amount,
+    stripe_payment_intent_id: session.id, // Use session id for lookup; webhook will update with real payment_intent
+  });
+
+  if (insertError) {
+    console.error("Failed to insert pending donation:", insertError);
+    // Don't block checkout if DB insert fails — webhook can still create record
+  }
 
   return { sessionId: session.id, url: session.url };
 }
