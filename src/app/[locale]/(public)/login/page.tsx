@@ -67,7 +67,8 @@ export default function LoginPage() {
     }
 
     const redirectPath = profile.role === "applicant" ? `/${locale}/my-case` : `/${locale}/dashboard`;
-    window.location.href = redirectPath;
+    // Use full URL because GoDaddy masking breaks relative navigation
+    window.location.href = `https://inspirehope.vercel.app${redirectPath}`;
   }
 
   async function signInWithGoogle(role: "staff" | "applicant" = "staff") {
@@ -86,7 +87,8 @@ export default function LoginPage() {
     document.cookie = `oauth_locale=${locale};path=/;max-age=3600;SameSite=Lax`;
     document.cookie = `oauth_role=${role};path=/;max-age=3600;SameSite=Lax`;
 
-    const redirectTo = `${window.location.origin}/api/auth/callback`;
+    // Hardcoded to Vercel domain because GoDaddy masking breaks window.location.origin
+    const redirectTo = `https://inspirehope.vercel.app/api/auth/callback`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
