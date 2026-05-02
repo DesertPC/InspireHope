@@ -119,7 +119,7 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select name="category" defaultValue={expense?.category} required>
+              <Select name="category" defaultValue={expense?.category ?? undefined} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
@@ -132,7 +132,7 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select name="paymentMethod" defaultValue={expense?.payment_method}>
+              <Select name="paymentMethod" defaultValue={expense?.payment_method ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
@@ -158,7 +158,7 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
 
           <div className="space-y-2">
             <Label htmlFor="caseId">Linked Case (optional)</Label>
-            <Select name="caseId" defaultValue={expense?.case_id}>
+            <Select name="caseId" defaultValue={expense?.case_id || ""}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a case..." />
               </SelectTrigger>

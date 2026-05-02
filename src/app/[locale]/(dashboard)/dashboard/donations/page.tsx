@@ -1,4 +1,6 @@
+import { getTranslations } from "next-intl/server";
 import { getDonations } from "@/actions/donations.actions";
+import { requireAdmin } from "@/lib/supabase/auth-helpers";
 import {
   Table,
   TableBody,
@@ -10,26 +12,33 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default async function DonationsPage() {
+export default async function DonationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  await requireAdmin(locale);
   const donations = await getDonations();
   const total = donations?.reduce((sum: number, d: any) => sum + (d.amount || 0), 0) ?? 0;
+  const t = await getTranslations("dashboard.pages.donations");
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Donations</h1>
-          <p className="text-muted-foreground">Track and manage donations</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-green-600">${total.toLocaleString()}</div>
-          <div className="text-sm text-muted-foreground">Total</div>
+          <div className="text-sm text-muted-foreground">{t("total")}</div>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Donations ({donations?.length ?? 0})</CardTitle>
+          <CardTitle>{t("allDonations")} ({donations?.length ?? 0})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -57,7 +66,7 @@ export default async function DonationsPage() {
               {(!donations || donations.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No donations found
+                    {t("noDonations")}
                   </TableCell>
                 </TableRow>
               )}

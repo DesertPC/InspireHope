@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InspireHope Senior Center
+
+[![Deploy on Vercel](https://img.shields.io/badge/Vercel-deployed-blue?logo=vercel)](https://inspirehope.vercel.app)
+
+**InspireHope Senior Center of Coachella Valley (ISCCV)** is a 501(c)(3) nonprofit management platform built with Next.js 15, Supabase, and Stripe.
+
+**Live site:** [https://inspirehope.vercel.app](https://inspirehope.vercel.app)
+
+---
+
+## Features
+
+- **Public Website** — Bilingual (English/Spanish) landing page with services, testimonials, and contact
+- **Online Donations** — Stripe Checkout integration (one-time and recurring) with fee coverage option
+- **Testimonials System** — Public submission form + admin moderation dashboard
+- **Senior & Case Management** — Full CRUD for beneficiaries and their support cases
+- **Expense Tracking** — Categorized expense logging linked to cases
+- **User Management** — Role-based access control (`admin` / `volunteer`)
+- **Financial Reporting** — Donations vs expenses overview
+
+---
+
+## Tech Stack
+
+- **Framework:** [Next.js 15](https://nextjs.org) (App Router, React 19)
+- **Language:** TypeScript (strict mode)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- **Database:** [Supabase](https://supabase.com) (PostgreSQL with RLS)
+- **Auth:** Supabase Auth (cookie-based SSR via `@supabase/ssr`)
+- **Payments:** [Stripe](https://stripe.com)
+- **i18n:** [next-intl](https://next-intl-docs.vercel.app) v4
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- A Supabase project
+- A Stripe account (test mode for development)
+
+### Installation
+
+```bash
+npm install
+```
+
+Create a `.env.local` file based on `.env.example`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database Setup
 
-## Learn More
+1. Run the migrations in `supabase/migrations/` in order (001, 002, ...) via the Supabase SQL Editor.
+2. Apply `supabase/fix_permissions.sql` to grant table privileges.
+3. Optionally run `supabase/seed.sql` to populate sample data.
 
-To learn more about Next.js, take a look at the following resources:
+> **Note:** Recent Supabase versions require `auth.uid() IS NOT NULL` instead of `auth.role() = 'authenticated'` in RLS policies. Migration `008_fix_rls_auth_role.sql` applies this fix.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+This project is deployed on **Vercel**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push to the GitHub repo.
+2. Vercel auto-deploys on every push to `master`.
+3. Set all environment variables in the Vercel dashboard.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Project Info
+
+- **Organization:** InspireHope Senior Center of Coachella Valley
+- **Address:** 73960 Highway 111 #4, Palm Desert, CA 92260
+- **Email:** careisccv@gmail.com
+- **Phone:** 805-904-7882
+- **EIN:** 39-4484811
+
+---
+
+## Agent Documentation
+
+For detailed technical context intended for AI agents continuing this project, see [`AGENTS.md`](./AGENTS.md).

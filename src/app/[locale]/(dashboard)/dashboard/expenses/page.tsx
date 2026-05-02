@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function ExpensesPage() {
+  const t = useTranslations("dashboard.pages.expenses");
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
@@ -32,7 +34,7 @@ export default function ExpensesPage() {
   }, []);
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this expense?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await deleteExpense(id);
       await loadExpenses();
@@ -86,13 +88,13 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Expenses</h1>
-          <p className="text-muted-foreground">Manage organizational expenses</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
             <div className="text-2xl font-bold text-red-600">${total.toLocaleString()}</div>
-            <div className="text-sm text-muted-foreground">Total</div>
+            <div className="text-sm text-muted-foreground">{t("total")}</div>
           </div>
           <Button onClick={handleAdd}>
             <Plus className="h-4 w-4 mr-2" />
@@ -103,18 +105,18 @@ export default function ExpensesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Expenses ({expenses.length})</CardTitle>
+          <CardTitle>{t("allExpenses")} ({expenses.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground py-8">Loading...</p>
+            <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
             <DataTable columns={columns} data={expenses} keyExtractor={(row) => row.id} />
           )}
         </CardContent>
       </Card>
 
-      <ExpenseForm open={formOpen} onOpenChange={setFormOpen} expense={editingExpense} onSuccess={loadExpenses} />
+      <ExpenseForm key={editingExpense?.id || "new"} open={formOpen} onOpenChange={setFormOpen} expense={editingExpense} onSuccess={loadExpenses} />
     </div>
   );
 }

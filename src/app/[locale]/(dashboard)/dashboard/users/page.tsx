@@ -1,4 +1,6 @@
+import { getTranslations } from "next-intl/server";
 import { getUsers, createUser } from "@/actions/users.actions";
+import { requireAdmin } from "@/lib/supabase/auth-helpers";
 import {
   Card,
   CardContent,
@@ -18,21 +20,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  await requireAdmin(locale);
   const users = await getUsers();
+  const t = await getTranslations("dashboard.pages.users");
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Users</h1>
-        <p className="text-muted-foreground">
-          Manage staff and volunteer accounts
-        </p>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Create New User</CardTitle>
+          <CardTitle>{t("createUser")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -40,7 +47,7 @@ export default async function UsersPage() {
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 items-end"
           >
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 name="email"
@@ -50,7 +57,7 @@ export default async function UsersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Input
                 id="password"
                 name="password"
@@ -61,7 +68,7 @@ export default async function UsersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name</Label>
+              <Label htmlFor="full_name">{t("fullName")}</Label>
               <Input
                 id="full_name"
                 name="full_name"
@@ -69,18 +76,18 @@ export default async function UsersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">{t("role")}</Label>
               <select
                 id="role"
                 name="role"
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
               >
-                <option value="volunteer">Volunteer</option>
-                <option value="admin">Admin</option>
+                <option value="volunteer">{t("volunteer")}</option>
+                <option value="admin">{t("admin")}</option>
               </select>
             </div>
             <div className="md:col-span-4">
-              <Button type="submit">Create User</Button>
+              <Button type="submit">{t("create")}</Button>
             </div>
           </form>
         </CardContent>
@@ -88,15 +95,15 @@ export default async function UsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Users ({users.length})</CardTitle>
+          <CardTitle>{t("allUsers")} ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
+                <TableHead>{t("fullName")}</TableHead>
+                <TableHead>{t("email")}</TableHead>
+                <TableHead>{t("role")}</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -129,7 +136,7 @@ export default async function UsersPage() {
                     colSpan={4}
                     className="text-center text-muted-foreground"
                   >
-                    No users found
+                    {t("noUsers")}
                   </TableCell>
                 </TableRow>
               )}

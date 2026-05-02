@@ -9,8 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function CasesPage() {
+  const router = useRouter();
+  const t = useTranslations("dashboard.pages.cases");
   const [cases, setCases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
@@ -33,7 +37,7 @@ export default function CasesPage() {
   }, []);
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this case?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await deleteCase(id);
       await loadCases();
@@ -91,7 +95,7 @@ export default function CasesPage() {
     {
       header: "Actions",
       cell: (row: any) => (
-        <div className="flex gap-1">
+        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" asChild>
             <Link href={`/en/dashboard/cases/${row.id}`}>
               <Eye className="h-4 w-4" />
@@ -112,24 +116,24 @@ export default function CasesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Cases</h1>
-          <p className="text-muted-foreground">Manage senior cases</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
-          New Case
+          {t("newCase")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Cases ({cases.length})</CardTitle>
+          <CardTitle>{t("allCases")} ({cases.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground py-8">Loading...</p>
+            <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
-            <DataTable columns={columns} data={cases} keyExtractor={(row) => row.id} />
+            <DataTable columns={columns} data={cases} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/en/dashboard/cases/${row.id}`)} />
           )}
         </CardContent>
       </Card>

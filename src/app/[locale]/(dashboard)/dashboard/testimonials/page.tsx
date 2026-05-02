@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2, CheckCircle, XCircle, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const statusFilters = ["all", "pending", "approved", "rejected"] as const;
 
@@ -32,6 +33,7 @@ function StarRating({ rating }: { rating: number | null }) {
 }
 
 export default function TestimonialsPage() {
+  const t = useTranslations("dashboard.pages.testimonials");
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
@@ -55,12 +57,12 @@ export default function TestimonialsPage() {
   }, []);
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this testimonial?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await deleteTestimonial(id);
       await loadTestimonials();
     } catch (err) {
-      alert("Failed to delete testimonial");
+      alert(t("failedDelete"));
     }
   }
 
@@ -69,7 +71,7 @@ export default function TestimonialsPage() {
       await updateTestimonialStatus(id, status);
       await loadTestimonials();
     } catch (err) {
-      alert("Failed to update status");
+      alert(t("failedUpdate"));
     }
   }
 
@@ -165,14 +167,12 @@ export default function TestimonialsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Testimonials</h1>
-          <p className="text-muted-foreground">
-            Review and manage testimonials submitted by applicants
-          </p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Testimonial
+          {t("addTestimonial")}
         </Button>
       </div>
 
@@ -196,11 +196,11 @@ export default function TestimonialsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Testimonials ({filtered.length})</CardTitle>
+          <CardTitle>{t("allTestimonials")} ({filtered.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground py-8">Loading...</p>
+            <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
             <DataTable
               columns={columns}

@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Globe } from "lucide-react";
+import { updateUserLocale } from "@/actions/auth.actions";
 
 const locales = [
   { code: "en", label: "English", flag: "🇺🇸" },
@@ -23,6 +24,15 @@ export function LocaleSwitcher() {
 
   function switchLocale(nextLocale: string) {
     if (!pathname) return;
+
+    // Persist locale in cookie for next-intl middleware
+    document.cookie = `NEXT_LOCALE=${nextLocale};path=/;max-age=31536000`;
+
+    // Persist locale in user profile (best effort)
+    updateUserLocale(nextLocale).catch(() => {
+      // Ignore errors — user may not be logged in
+    });
+
     const newPath = pathname.replace(/^\/(en|es)/, `/${nextLocale}`);
     router.push(newPath);
   }

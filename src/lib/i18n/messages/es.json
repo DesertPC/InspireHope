@@ -155,6 +155,64 @@
       "reports": "Reportes",
       "settings": "Configuración",
       "signOut": "Cerrar Sesión"
+    },
+    "pages": {
+      "cases": {
+        "title": "Casos",
+        "description": "Administrar casos de adultos mayores",
+        "newCase": "Nuevo Caso",
+        "allCases": "Todos los Casos",
+        "loading": "Cargando...",
+        "confirmDelete": "¿Estás seguro de que deseas eliminar este caso?"
+      },
+      "seniors": {
+        "title": "Adultos Mayores",
+        "description": "Administrar perfiles y registros de adultos mayores",
+        "addSenior": "Agregar Adulto Mayor",
+        "allSeniors": "Todos los Adultos Mayores",
+        "loading": "Cargando...",
+        "confirmDelete": "¿Estás seguro de que deseas eliminar este adulto mayor?"
+      },
+      "expenses": {
+        "title": "Gastos",
+        "description": "Administrar gastos organizacionales",
+        "addExpense": "Agregar Gasto",
+        "allExpenses": "Todos los Gastos",
+        "total": "Total",
+        "loading": "Cargando...",
+        "confirmDelete": "¿Estás seguro de que deseas eliminar este gasto?"
+      },
+      "testimonials": {
+        "title": "Testimonios",
+        "description": "Revisar y administrar testimonios enviados por solicitantes",
+        "addTestimonial": "Agregar Testimonio",
+        "allTestimonials": "Todos los Testimonios",
+        "loading": "Cargando...",
+        "confirmDelete": "¿Estás seguro de que deseas eliminar este testimonio?",
+        "failedDelete": "Error al eliminar testimonio",
+        "failedUpdate": "Error al actualizar estado"
+      },
+      "users": {
+        "title": "Usuarios",
+        "description": "Administrar cuentas de personal y voluntarios",
+        "createUser": "Crear Nuevo Usuario",
+        "allUsers": "Todos los Usuarios",
+        "noUsers": "No se encontraron usuarios",
+        "email": "Correo Electrónico",
+        "password": "Contraseña",
+        "fullName": "Nombre Completo",
+        "role": "Rol",
+        "volunteer": "Voluntario",
+        "admin": "Administrador",
+        "create": "Crear Usuario"
+      },
+      "donations": {
+        "title": "Donaciones",
+        "description": "Seguimiento y administración de donaciones",
+        "allDonations": "Todas las Donaciones",
+        "total": "Total",
+        "noDonations": "No se encontraron donaciones"
+      }
     }
   }
 }

@@ -155,6 +155,64 @@
       "reports": "Reports",
       "settings": "Settings",
       "signOut": "Sign Out"
+    },
+    "pages": {
+      "cases": {
+        "title": "Cases",
+        "description": "Manage senior cases",
+        "newCase": "New Case",
+        "allCases": "All Cases",
+        "loading": "Loading...",
+        "confirmDelete": "Are you sure you want to delete this case?"
+      },
+      "seniors": {
+        "title": "Seniors",
+        "description": "Manage senior profiles and records",
+        "addSenior": "Add Senior",
+        "allSeniors": "All Seniors",
+        "loading": "Loading...",
+        "confirmDelete": "Are you sure you want to delete this senior?"
+      },
+      "expenses": {
+        "title": "Expenses",
+        "description": "Manage organizational expenses",
+        "addExpense": "Add Expense",
+        "allExpenses": "All Expenses",
+        "total": "Total",
+        "loading": "Loading...",
+        "confirmDelete": "Are you sure you want to delete this expense?"
+      },
+      "testimonials": {
+        "title": "Testimonials",
+        "description": "Review and manage testimonials submitted by applicants",
+        "addTestimonial": "Add Testimonial",
+        "allTestimonials": "All Testimonials",
+        "loading": "Loading...",
+        "confirmDelete": "Are you sure you want to delete this testimonial?",
+        "failedDelete": "Failed to delete testimonial",
+        "failedUpdate": "Failed to update status"
+      },
+      "users": {
+        "title": "Users",
+        "description": "Manage staff and volunteer accounts",
+        "createUser": "Create New User",
+        "allUsers": "All Users",
+        "noUsers": "No users found",
+        "email": "Email",
+        "password": "Password",
+        "fullName": "Full Name",
+        "role": "Role",
+        "volunteer": "Volunteer",
+        "admin": "Admin",
+        "create": "Create User"
+      },
+      "donations": {
+        "title": "Donations",
+        "description": "Track and manage donations",
+        "allDonations": "All Donations",
+        "total": "Total",
+        "noDonations": "No donations found"
+      }
     }
   }
 }

@@ -8,22 +8,28 @@ import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { useTranslations } from "next-intl";
 
-const routePaths = [
-  { path: "/dashboard", key: "dashboard" },
-  { path: "/dashboard/seniors", key: "seniors" },
-  { path: "/dashboard/cases", key: "cases" },
-  { path: "/dashboard/testimonials", key: "testimonials" },
-  { path: "/dashboard/donations", key: "donations" },
-  { path: "/dashboard/expenses", key: "expenses" },
-  { path: "/dashboard/users", key: "users" },
-  { path: "/dashboard/reports", key: "reports" },
-  { path: "/dashboard/settings", key: "settings" },
+const allRoutes = [
+  { path: "/dashboard", key: "dashboard", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/seniors", key: "seniors", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/cases", key: "cases", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/testimonials", key: "testimonials", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/donations", key: "donations", roles: ["admin"] },
+  { path: "/dashboard/expenses", key: "expenses", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/users", key: "users", roles: ["admin"] },
+  { path: "/dashboard/reports", key: "reports", roles: ["admin", "volunteer"] },
+  { path: "/dashboard/settings", key: "settings", roles: ["admin", "volunteer"] },
 ];
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  role?: string;
+}
+
+export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] ?? "en";
   const t = useTranslations("dashboard");
+
+  const routes = allRoutes.filter((r) => r.roles.includes(role ?? ""));
 
   return (
     <aside className="w-64 border-r bg-background">
@@ -35,7 +41,7 @@ export function DashboardSidebar() {
           <LocaleSwitcher />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {routePaths.map((link) => {
+          {routes.map((link) => {
             const href = `/${locale}${link.path}`;
             return (
               <Link

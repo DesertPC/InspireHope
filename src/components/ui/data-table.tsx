@@ -23,9 +23,10 @@ interface DataTableProps<T> {
   data: T[];
   emptyMessage?: string;
   keyExtractor: (row: T) => string;
+  onRowClick?: (row: T) => void;
 }
 
-export function DataTable<T>({ columns, data, emptyMessage = "No data found", keyExtractor }: DataTableProps<T>) {
+export function DataTable<T>({ columns, data, emptyMessage = "No data found", keyExtractor, onRowClick }: DataTableProps<T>) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -41,7 +42,11 @@ export function DataTable<T>({ columns, data, emptyMessage = "No data found", ke
         <TableBody>
           {data?.length > 0 ? (
             data.map((row) => (
-              <TableRow key={keyExtractor(row)}>
+              <TableRow
+                key={keyExtractor(row)}
+                onClick={() => onRowClick?.(row)}
+                className={cn(onRowClick && "cursor-pointer hover:bg-muted/50")}
+              >
                 {columns.map((col, i) => (
                   <TableCell key={i} className={col.className}>
                     {col.cell ? col.cell(row) : col.accessorKey ? (row as any)[col.accessorKey] : null}

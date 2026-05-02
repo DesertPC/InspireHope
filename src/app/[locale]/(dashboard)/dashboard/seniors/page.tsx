@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function SeniorsPage() {
   const router = useRouter();
+  const t = useTranslations("dashboard.pages.seniors");
   const [seniors, setSeniors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
@@ -34,13 +36,17 @@ export default function SeniorsPage() {
   }, []);
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this senior?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await deleteSenior(id);
       await loadSeniors();
     } catch (err) {
       alert("Failed to delete senior");
     }
+  }
+
+  function handleView(senior: any) {
+    router.push(`/en/dashboard/seniors/${senior.id}`);
   }
 
   function handleEdit(senior: any) {
@@ -69,7 +75,7 @@ export default function SeniorsPage() {
     {
       header: "Actions",
       cell: (row: any) => (
-        <div className="flex gap-1">
+        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" onClick={() => handleEdit(row)}>
             <Pencil className="h-4 w-4" />
           </Button>
@@ -85,24 +91,24 @@ export default function SeniorsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Seniors</h1>
-          <p className="text-muted-foreground">Manage senior profiles and records</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Senior
+          {t("addSenior")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Seniors ({seniors.length})</CardTitle>
+          <CardTitle>{t("allSeniors")} ({seniors.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground py-8">Loading...</p>
+            <p className="text-center text-muted-foreground py-8">{t("loading")}</p>
           ) : (
-            <DataTable columns={columns} data={seniors} keyExtractor={(row) => row.id} />
+            <DataTable columns={columns} data={seniors} keyExtractor={(row) => row.id} onRowClick={(row) => router.push(`/en/dashboard/seniors/${row.id}`)} />
           )}
         </CardContent>
       </Card>
