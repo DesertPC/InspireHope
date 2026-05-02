@@ -19,21 +19,7 @@ async function requireAdmin() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    const { error: insertError } = await supabaseAdmin.from("profiles").insert({
-      id: user.id,
-      email: user.email ?? "",
-      full_name: user.user_metadata?.full_name ?? null,
-      role: "admin",
-    });
-    if (insertError) {
-      console.error("Auto-create profile error:", insertError);
-      throw new Error("Failed to auto-create admin profile");
-    }
-    return { user, profile: { role: "admin" } };
-  }
-
-  if (profile.role !== "admin") throw new Error("Forbidden");
+  if (!profile || profile.role !== "admin") throw new Error("Forbidden");
   return { user, profile };
 }
 
@@ -92,7 +78,9 @@ export async function uploadDocument(formData: FormData, caseId: string) {
   const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filePath = `cases/${caseId}/${Date.now()}_${sanitizedName}`;
 
-  const { error: uploadError } = await supabaseAdmin.storage
+  // Use authenticated client for Storage to comply with RLS policies
+  const supabase = await createSupabaseServerClient();
+  const { error: uploadError } = await supabase.storage
     .from("documents")
     .upload(filePath, file, {
       contentType: file.type || "application/octet-stream",
@@ -139,7 +127,9 @@ export async function deleteDocument(documentId: string) {
     throw new Error("Document not found");
   }
 
-  const { error: storageError } = await supabaseAdmin.storage
+  // Use authenticated client for Storage to comply with RLS policies
+  const supabase = await createSupabaseServerClient();
+  const { error: storageError } = await supabase.storage
     .from("documents")
     .remove([doc.file_path]);
 
@@ -173,7 +163,9 @@ export async function getDocumentDownloadUrl(documentId: string) {
     throw new Error("Document not found");
   }
 
-  const { data: urlData, error: urlError } = await supabaseAdmin.storage
+  // Use authenticated client for Storage to comply with RLS policies
+  const supabase = await createSupabaseServerClient();
+  const { data: urlData, error: urlError } = await supabase.storage
     .from("documents")
     .createSignedUrl(doc.file_path, 60 * 60);
 
