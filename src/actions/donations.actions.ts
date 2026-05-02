@@ -116,3 +116,22 @@ export async function getDonations() {
 
   return data ?? [];
 }
+
+export async function getMyDonations() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const { data, error } = await supabase
+    .from("donations")
+    .select("*")
+    .eq("donor_email", session.user.email)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("getMyDonations error:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+}

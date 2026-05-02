@@ -44,7 +44,7 @@ export default async function UsersPage({
         <CardContent>
           <form
             action={createUser}
-            className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 items-end"
+            className="grid gap-4 md:grid-cols-3 items-end"
           >
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
@@ -54,17 +54,6 @@ export default async function UsersPage({
                 type="email"
                 required
                 placeholder="user@example.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("password")}</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={6}
-                placeholder="••••••"
               />
             </div>
             <div className="space-y-2">
@@ -86,7 +75,7 @@ export default async function UsersPage({
                 <option value="admin">{t("admin")}</option>
               </select>
             </div>
-            <div className="md:col-span-4">
+            <div className="md:col-span-3">
               <Button type="submit">{t("create")}</Button>
             </div>
           </form>

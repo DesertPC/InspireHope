@@ -3,6 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 
 async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
@@ -26,6 +27,10 @@ async function requireAdmin() {
   return { user, profile };
 }
 
+function generateSecurePassword() {
+  return randomBytes(32).toString("hex");
+}
+
 export async function getUsers() {
   await requireAdmin();
 
@@ -46,17 +51,20 @@ export async function createUser(formData: FormData) {
   await requireAdmin();
 
   const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
   const fullName = formData.get("full_name") as string;
   const role = (formData.get("role") as string) || "volunteer";
 
-  if (!email || !password || password.length < 6) {
-    throw new Error("Email is required and password must be at least 6 characters");
+  if (!email) {
+    throw new Error("Email is required");
   }
+
+  // Generate a secure random password that the user will never know.
+  // They will log in exclusively via Google OAuth.
+  const tempPassword = generateSecurePassword();
 
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
-    password,
+    password: tempPassword,
     email_confirm: true,
     user_metadata: { full_name: fullName },
   });

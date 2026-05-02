@@ -26,7 +26,8 @@ async function requireApplicant() {
 export async function getMyCase() {
   const { user } = await requireApplicant();
 
-  const { data, error } = await supabaseAdmin
+  // First try by applicant_user_id
+  const { data: caseByUser, error: errorByUser } = await supabaseAdmin
     .from("cases")
     .select("*, seniors(*)")
     .eq("applicant_user_id", user.id)
@@ -34,8 +35,36 @@ export async function getMyCase() {
     .limit(1)
     .maybeSingle();
 
-  if (error) throw error;
-  return data;
+  if (caseByUser) return caseByUser;
+
+  // Fallback: find senior by email and then their case
+  const { data: senior } = await supabaseAdmin
+    .from("seniors")
+    .select("id")
+    .eq("email", user.email ?? "")
+    .maybeSingle();
+
+  if (senior) {
+    const { data: caseBySenior, error: errorBySenior } = await supabaseAdmin
+      .from("cases")
+      .select("*, seniors(*)")
+      .eq("senior_id", senior.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (caseBySenior) {
+      // Link case to user for future lookups
+      await supabaseAdmin
+        .from("cases")
+        .update({ applicant_user_id: user.id })
+        .eq("id", caseBySenior.id);
+      return caseBySenior;
+    }
+  }
+
+  if (errorByUser) throw errorByUser;
+  return null;
 }
 
 export async function getMyCaseNotes(caseId: string) {
