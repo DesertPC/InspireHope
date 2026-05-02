@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createSupabaseServerClient();
 
-  // exchangeCodeForSession returns the session directly — use it instead of getSession()
   const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError) {
@@ -34,16 +33,26 @@ export async function GET(request: NextRequest) {
   }
 
   const email = user.email.toLowerCase().trim();
-  console.log("[OAuth Callback] Authenticated user:", email, "ID:", user.id);
+  console.log("[OAuth Callback] Authenticated email:", email, "User ID:", user.id);
 
-  let profile;
+  let profile: { id: string; email: string; role: string } | null = null;
+
   try {
-    // 1. Check existing profile (case-insensitive)
-    const { data: existingProfile } = await supabaseAdmin
+    // 1. Check existing profile
+    console.log("[OAuth Callback] Searching profiles for:", email);
+    const { data: profilesRows, error: profileError } = await supabaseAdmin
       .from("profiles")
       .select("id, email, role")
       .ilike("email", email)
-      .maybeSingle();
+      .limit(1);
+
+    if (profileError) {
+      console.error("[OAuth Callback] Profile query error:", profileError.message);
+    } else {
+      console.log("[OAuth Callback] Profile query result count:", profilesRows?.length ?? 0);
+    }
+
+    const existingProfile = profilesRows?.[0] ?? null;
 
     if (existingProfile) {
       console.log("[OAuth Callback] Found existing profile:", existingProfile.role);
@@ -52,14 +61,23 @@ export async function GET(request: NextRequest) {
 
     // 2. If no profile, check if they are a senior (applicant)
     if (!profile) {
-      const { data: senior } = await supabaseAdmin
+      console.log("[OAuth Callback] Searching seniors for:", email);
+      const { data: seniorsRows, error: seniorError } = await supabaseAdmin
         .from("seniors")
         .select("id, email")
         .ilike("email", email)
-        .maybeSingle();
+        .limit(1);
+
+      if (seniorError) {
+        console.error("[OAuth Callback] Senior query error:", seniorError.message);
+      } else {
+        console.log("[OAuth Callback] Senior query result count:", seniorsRows?.length ?? 0);
+      }
+
+      const senior = seniorsRows?.[0] ?? null;
 
       if (senior) {
-        console.log("[OAuth Callback] Senior found, auto-provisioning as applicant:", senior.id);
+        console.log("[OAuth Callback] Senior found, auto-provisioning as applicant. Senior ID:", senior.id);
         const { error: insertError } = await supabaseAdmin.from("profiles").insert({
           id: user.id,
           email: email,
@@ -81,12 +99,20 @@ export async function GET(request: NextRequest) {
 
     // 3. If still no profile, check if they are a donor
     if (!profile) {
-      const { data: donation } = await supabaseAdmin
+      console.log("[OAuth Callback] Searching donations for:", email);
+      const { data: donationsRows, error: donationError } = await supabaseAdmin
         .from("donations")
         .select("id, donor_email")
         .ilike("donor_email", email)
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+
+      if (donationError) {
+        console.error("[OAuth Callback] Donation query error:", donationError.message);
+      } else {
+        console.log("[OAuth Callback] Donation query result count:", donationsRows?.length ?? 0);
+      }
+
+      const donation = donationsRows?.[0] ?? null;
 
       if (donation) {
         console.log("[OAuth Callback] Donation found, auto-provisioning as donor");
@@ -104,18 +130,18 @@ export async function GET(request: NextRequest) {
       }
     }
   } catch (err: any) {
-    console.error("[OAuth Callback] Profile lookup/auto-provision error:", err.message);
+    console.error("[OAuth Callback] Profile lookup/auto-provision exception:", err.message);
   }
 
   if (!profile) {
-    console.error("[OAuth Callback] No profile, senior, or donation found for:", email);
+    console.error("[OAuth Callback] REJECTED — No profile, senior, or donation found for:", email);
     await supabase.auth.signOut();
     return NextResponse.redirect(
       `${origin}/${locale}/login?error=not_authorized`
     );
   }
 
-  console.log("[OAuth Callback] Redirecting user to:", profile.role);
+  console.log("[OAuth Callback] ACCEPTED — Redirecting user to:", profile.role);
 
   const redirectPath =
     profile.role === "applicant"
