@@ -50,30 +50,76 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cases, setCases] = useState<any[]>([]);
+  const [casesLoading, setCasesLoading] = useState(false);
+
+  // Controlled form state
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [expenseDate, setExpenseDate] = useState("");
+  const [category, setCategory] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [vendorName, setVendorName] = useState("");
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [caseId, setCaseId] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isReimbursable, setIsReimbursable] = useState(false);
 
   useEffect(() => {
     if (open) {
-      getCases().then(setCases).catch(console.error);
+      setCasesLoading(true);
+      getCases()
+        .then((data) => {
+          setCases(data || []);
+        })
+        .catch(console.error)
+        .finally(() => setCasesLoading(false));
     }
   }, [open]);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    if (expense) {
+      setDescription(expense.description ?? "");
+      setAmount(expense.amount?.toString() ?? "");
+      setExpenseDate(expense.expense_date ?? "");
+      setCategory(expense.category ?? "");
+      setPaymentMethod(expense.payment_method ?? "");
+      setVendorName(expense.vendor_name ?? "");
+      setReceiptNumber(expense.receipt_number ?? "");
+      setCaseId(expense.case_id ?? "");
+      setNotes(expense.notes ?? "");
+      setIsReimbursable(expense.is_reimbursable ?? false);
+    } else {
+      // Reset for new expense
+      setDescription("");
+      setAmount("");
+      setExpenseDate("");
+      setCategory("");
+      setPaymentMethod("");
+      setVendorName("");
+      setReceiptNumber("");
+      setCaseId("");
+      setNotes("");
+      setIsReimbursable(false);
+    }
+    setError(null);
+  }, [expense]);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
     const data: ExpenseFormData = {
-      description: formData.get("description") as string,
-      amount: Number(formData.get("amount")),
-      category: formData.get("category") as any,
-      paymentMethod: (formData.get("paymentMethod") as any) || undefined,
-      vendorName: formData.get("vendorName") as string || undefined,
-      receiptNumber: formData.get("receiptNumber") as string || undefined,
-      expenseDate: formData.get("expenseDate") ? new Date(formData.get("expenseDate") as string) : new Date(),
-      caseId: (formData.get("caseId") as string) || undefined,
-      notes: formData.get("notes") as string || undefined,
-      isReimbursable: formData.get("isReimbursable") === "on",
+      description: description.trim(),
+      amount: Number(amount),
+      category: category as any,
+      paymentMethod: (paymentMethod as ExpenseFormData["paymentMethod"]) || undefined,
+      vendorName: vendorName.trim() || undefined,
+      receiptNumber: receiptNumber.trim() || undefined,
+      expenseDate: expenseDate ? new Date(expenseDate) : new Date(),
+      caseId: caseId || undefined,
+      notes: notes.trim() || undefined,
+      isReimbursable,
     };
 
     try {
@@ -102,25 +148,46 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
 
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
-            <Input id="description" name="description" defaultValue={expense?.description} required />
+            <Input
+              id="description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="amount">Amount *</Label>
-              <Input id="amount" name="amount" type="number" step="0.01" min="0.01" defaultValue={expense?.amount} required />
+              <Input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="expenseDate">Date</Label>
-              <Input id="expenseDate" name="expenseDate" type="date" defaultValue={expense?.expense_date} />
+              <Input
+                id="expenseDate"
+                name="expenseDate"
+                type="date"
+                value={expenseDate}
+                onChange={(e) => setExpenseDate(e.target.value)}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select name="category" defaultValue={expense?.category ?? undefined} required>
-                <SelectTrigger>
+              <Select value={category} onValueChange={setCategory} required>
+                <SelectTrigger id="category">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -132,8 +199,8 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select name="paymentMethod" defaultValue={expense?.payment_method ?? undefined}>
-                <SelectTrigger>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger id="paymentMethod">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -148,19 +215,29 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="vendorName">Vendor</Label>
-              <Input id="vendorName" name="vendorName" defaultValue={expense?.vendor_name} />
+              <Input
+                id="vendorName"
+                name="vendorName"
+                value={vendorName}
+                onChange={(e) => setVendorName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="receiptNumber">Receipt #</Label>
-              <Input id="receiptNumber" name="receiptNumber" defaultValue={expense?.receipt_number} />
+              <Input
+                id="receiptNumber"
+                name="receiptNumber"
+                value={receiptNumber}
+                onChange={(e) => setReceiptNumber(e.target.value)}
+              />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="caseId">Linked Case (optional)</Label>
-            <Select name="caseId" defaultValue={expense?.case_id || ""}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a case..." />
+            <Select value={caseId} onValueChange={setCaseId} disabled={casesLoading}>
+              <SelectTrigger id="caseId">
+                <SelectValue placeholder={casesLoading ? "Loading cases..." : "Select a case..."} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">None</SelectItem>
@@ -175,19 +252,35 @@ export function ExpenseForm({ open, onOpenChange, expense, onSuccess }: ExpenseF
 
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" defaultValue={expense?.notes} rows={2} />
+            <Textarea
+              id="notes"
+              name="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+            />
           </div>
 
           <div className="flex items-center space-x-2">
-            <Checkbox id="isReimbursable" name="isReimbursable" defaultChecked={expense?.is_reimbursable} />
+            <Checkbox
+              id="isReimbursable"
+              name="isReimbursable"
+              checked={isReimbursable}
+              onCheckedChange={(checked) => setIsReimbursable(checked === true)}
+            />
             <Label htmlFor="isReimbursable">Reimbursable</Label>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={loading}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || !category}>
               {loading ? "Saving..." : expense ? "Update" : "Create"}
             </Button>
           </div>

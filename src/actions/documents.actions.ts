@@ -78,11 +78,14 @@ export async function uploadDocument(formData: FormData, caseId: string) {
   const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filePath = `cases/${caseId}/${Date.now()}_${sanitizedName}`;
 
+  // Convert File to ArrayBuffer for reliable upload in Server Actions
+  const arrayBuffer = await file.arrayBuffer();
+
   // Use authenticated client for Storage to comply with RLS policies
   const supabase = await createSupabaseServerClient();
   const { error: uploadError } = await supabase.storage
     .from("documents")
-    .upload(filePath, file, {
+    .upload(filePath, arrayBuffer, {
       contentType: file.type || "application/octet-stream",
       upsert: false,
     });
