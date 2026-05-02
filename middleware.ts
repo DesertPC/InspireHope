@@ -6,7 +6,7 @@ import { routing } from "./src/lib/i18n/routing";
 
 export async function middleware(request: NextRequest) {
   // First, let next-intl handle locale routing
-  const response = createMiddleware(routing)(request);
+  const response = await createMiddleware(routing)(request);
 
   // Then refresh the Supabase auth session
   const supabase = createServerClient(

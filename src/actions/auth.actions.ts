@@ -1,13 +1,14 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function signOut() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   // Read locale from cookie for redirect
-  const cookieStore = await import("next/headers").then((m) => m.cookies());
+  const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value ?? "en";
   redirect(`/${locale}/login`);
 }
